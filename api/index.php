@@ -21,6 +21,14 @@ $_ENV['VIEW_COMPILED_PATH'] = $storagePath . '/framework/views';
 $_ENV['SESSION_DRIVER'] = $_ENV['SESSION_DRIVER'] ?? 'cookie';
 $_ENV['LOG_CHANNEL'] = 'stderr'; // Route logs to Vercel Console
 
+// Overwrite cache paths to be contained within the writable /tmp directory
+$_ENV['APP_CONFIG_CACHE'] = $storagePath . '/bootstrap/cache/config.php';
+$_ENV['APP_ROUTES_CACHE'] = $storagePath . '/bootstrap/cache/routes-v7.php';
+$_ENV['APP_EVENTS_CACHE'] = $storagePath . '/bootstrap/cache/events.php';
+$_ENV['APP_PACKAGES_CACHE'] = $storagePath . '/bootstrap/cache/packages.php';
+$_ENV['APP_SERVICES_CACHE'] = $storagePath . '/bootstrap/cache/services.php';
+
+
 $app = require_once __DIR__.'/../bootstrap/app.php';
 
 // Instruct the Laravel application to override standard storage paths
