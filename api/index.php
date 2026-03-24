@@ -34,4 +34,7 @@ $app = require_once __DIR__.'/../bootstrap/app.php';
 // Instruct the Laravel application to override standard storage paths
 $app->useStoragePath($storagePath);
 
-$app->handleRequest(Illuminate\Http\Request::capture());
+$request = Illuminate\Http\Request::capture();
+// Force JSON temporarily to bypass the crashing Blade View Compiler to see the REAL error
+$request->headers->set('Accept', 'application/json');
+$app->handleRequest($request);
