@@ -20,6 +20,7 @@ class Sale extends Model
         'amount_due',
         'payment_method',
         'status',
+        'due_date',
         'notes',
     ];
 
@@ -32,6 +33,7 @@ class Sale extends Model
     {
         return [
             'sold_at' => 'datetime',
+            'due_date' => 'date',
         ];
     }
 

@@ -26,6 +26,50 @@
         </button>
     </div>
 
+    <!-- Due Date Information Banners -->
+    @if(isset($upcomingDueInstallments) && $upcomingDueInstallments->count() > 0)
+        <div class="mb-6 space-y-3">
+            @foreach($upcomingDueInstallments as $installment)
+                <div x-data="{ show: true }" x-show="show"
+                    class="flex items-center gap-3 p-4 rounded-xl bg-amber-50 border border-amber-200 shadow-sm transition-all duration-300">
+                    <div class="flex-shrink-0">
+                        <div class="w-10 h-10 rounded-full bg-white flex items-center justify-center border border-amber-200">
+                            <svg class="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z">
+                                </path>
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="flex-1">
+                        <h4 class="text-sm font-bold text-amber-900 tracking-tight">Pengingat Jatuh Tempo!</h4>
+                        <p class="text-[13px] text-amber-800 mt-0.5">
+                            Transaksi <span class="font-semibold">{{ $installment->invoice_no }}</span>
+                            akan jatuh tempo pada
+                            <span
+                                class="font-bold underline decoration-amber-300">{{ \Carbon\Carbon::parse($installment->due_date)->translatedFormat('d F Y') }}</span>.
+                            Sisa tagihan: <span class="font-semibold">Rp
+                                {{ number_format($installment->amount_due, 0, ',', '.') }}</span>.
+                        </p>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <a href="{{ route('admin.sales.show', $installment->id) }}"
+                            class="inline-flex items-center justify-center px-4 py-2 text-xs font-bold text-amber-700 bg-white border border-amber-300 rounded-lg hover:bg-amber-50 hover:text-amber-800 transition-colors shadow-sm whitespace-nowrap">
+                            Lihat Detail
+                        </a>
+                        <button type="button" @click="show = false"
+                            class="inline-flex items-center justify-center w-8 h-8 rounded-lg text-amber-500 hover:bg-amber-100/50 hover:text-amber-800 transition-colors outline-none focus:ring-2 focus:ring-amber-500/20"
+                            aria-label="Tutup Pengingat" title="Tutup">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            @endforeach
+        </div>
+    @endif
+
     <!-- Metrics Section -->
     <div class="grid grid-cols-3 gap-4 mb-6">
         <!-- Metric 1: Total Revenue -->
@@ -40,7 +84,9 @@
             <div>
                 <p class="text-xs font-medium text-gray-500 mb-1">Total Revenue</p>
                 <div class="flex items-baseline justify-between">
-                    <h3 class="text-2xl font-bold text-gray-900 tracking-tight">Rp {{ number_format($totalRevenue, 0, ',', '.') }}</h3>
+                    <h3 class="text-2xl font-bold text-gray-900 tracking-tight">Rp
+                        {{ number_format($totalRevenue, 0, ',', '.') }}
+                    </h3>
                 </div>
             </div>
         </div>
@@ -56,7 +102,9 @@
             <div>
                 <p class="text-xs font-medium text-gray-500 mb-1">Total Transactions</p>
                 <div class="flex items-baseline justify-between">
-                    <h3 class="text-2xl font-bold text-gray-900 tracking-tight">{{ number_format($totalTransactions, 0, ',', '.') }}</h3>
+                    <h3 class="text-2xl font-bold text-gray-900 tracking-tight">
+                        {{ number_format($totalTransactions, 0, ',', '.') }}
+                    </h3>
 
                 </div>
             </div>
@@ -74,14 +122,141 @@
             <div>
                 <p class="text-xs font-medium text-gray-500 mb-1">Produk Terjual</p>
                 <div class="flex items-baseline justify-between">
-                    <h3 class="text-2xl font-bold text-gray-900 tracking-tight">{{ number_format($totalProductsSold, 0, ',', '.') }}</h3>
+                    <h3 class="text-2xl font-bold text-gray-900 tracking-tight">
+                        {{ number_format($totalProductsSold, 0, ',', '.') }}
+                    </h3>
                 </div>
             </div>
         </div>
     </div>
 
+    <!-- Filter and Search Section -->
+    <form method="GET" action="{{ url()->current() }}"
+        class="mb-4 flex flex-col xl:flex-row items-start xl:items-center justify-between gap-4 mt-4">
+
+        <!-- Left: Search input -->
+        <div class="relative w-full xl:w-[320px]">
+            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <svg class="h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+            </div>
+            <input type="text" name="search" value="{{ $search }}"
+                class="block w-full pl-9 pr-3 py-2 border border-gray-300 rounded-lg text-sm bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-colors shadow-sm"
+                placeholder="Cari no invoice atau nama kasir...">
+        </div>
+
+        <!-- Right: Filters dropdowns -->
+        <!-- Right: Filters dropdowns -->
+        <div x-data="{ 
+            dateType: '{{ $filterDate ?? 'semua' }}', 
+            previousDateType: '{{ $filterDate ?? 'semua' }}',
+            showCustomModal: false 
+        }" class="flex flex-wrap items-center gap-2 w-full xl:w-auto">
+
+            <!-- Filter Date Type -->
+            <div class="relative min-w-[140px]">
+                <select name="filterDate" x-model="dateType"
+                    @change="if($event.target.value === 'custom') { showCustomModal = true; } else { $event.target.form.submit(); }"
+                    class="appearance-none block w-full px-3 py-2 border border-gray-300 bg-white rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-colors shadow-sm pr-8">
+                    <option value="semua">Semua Waktu</option>
+                    <option value="harian">Harian (Hari Ini)</option>
+                    <option value="mingguan">Mingguan (7 Hari)</option>
+                    <option value="bulanan">Bulanan (Bulan Ini)</option>
+                    <option value="custom">Pilih Rentang Waktu</option>
+                </select>
+                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-400">
+                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    </svg>
+                </div>
+            </div>
+
+            <!-- Custom Date Modal -->
+            <div x-show="showCustomModal" style="display: none;"
+                class="fixed inset-0 z-[100] flex items-center justify-center overflow-y-auto overflow-x-hidden bg-gray-900/50 backdrop-blur-sm p-4 sm:p-0">
+                <!-- Modal Backdrop -->
+                <div x-show="showCustomModal" x-transition.opacity class="fixed inset-0"
+                    @click="showCustomModal = false; dateType = previousDateType"></div>
+
+                <!-- Modal Panel -->
+                <div x-show="showCustomModal" x-transition:enter="ease-out duration-300"
+                    x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+                    x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100"
+                    x-transition:leave="ease-in duration-200"
+                    x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100"
+                    x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+                    style="max-width: 320px;"
+                    class="relative w-full transform overflow-hidden rounded-xl bg-white text-left align-middle shadow-2xl transition-all mx-4">
+
+                    <div class="border-b border-gray-100 px-4 py-3 flex items-center justify-between bg-gray-50/80">
+                        <h3 class="text-[15px] font-bold text-gray-900 tracking-tight">Pilih Rentang Waktu</h3>
+                        <button type="button" @click="showCustomModal = false; dateType = previousDateType"
+                            class="text-gray-400 hover:text-gray-600 focus:outline-none transition-colors rounded-lg hover:bg-gray-200/50 p-1">
+                            <span class="sr-only">Tutup</span>
+                            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M6 18L18 6M6 6l12 12"></path>
+                            </svg>
+                        </button>
+                    </div>
+
+                    <div class="p-4 space-y-3.5">
+                        <div class="mb-4">
+                            <label
+                                class="block text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-2">Dari</label>
+                            <input type="date" name="startDate" value="{{ $startDate }}"
+                                class="block w-full px-3 py-1.5 border border-gray-300 rounded-lg text-[13px] bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-colors shadow-sm">
+                        </div>
+                        <div>
+                            <label
+                                class="block text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-2">Sampai</label>
+                            <input type="date" name="endDate" value="{{ $endDate }}"
+                                class="block w-full px-3 py-1.5 border border-gray-300 rounded-lg text-[13px] bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-colors shadow-sm">
+                        </div>
+                    </div>
+
+                    <div class="border-t border-gray-100 px-4 py-3 bg-gray-50/80 flex justify-end gap-2">
+                        <button type="button" @click="showCustomModal = false; dateType = previousDateType"
+                            class="px-3 py-1.5 text-[13px] font-semibold text-gray-600 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-200 transition-all shadow-sm">
+                            Batal
+                        </button>
+                        <button type="button" @click="$event.target.closest('form').submit()"
+                            class="px-3 py-1.5 text-[13px] font-semibold text-white bg-blue-600 border border-transparent rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all shadow-sm">
+                            Terapkan
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Filter Status -->
+            <div class="relative min-w-[140px]">
+                <select name="filterStatus" onchange="this.form.submit()"
+                    class="appearance-none block w-full px-3 py-2 border border-gray-300 bg-white rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-colors shadow-sm pr-8">
+                    <option value="">Semua Status</option>
+                    <option value="completed" {{ $filterStatus === 'completed' ? 'selected' : '' }}>Lunas</option>
+                    <option value="installment" {{ $filterStatus === 'installment' ? 'selected' : '' }}>Cicilan</option>
+                </select>
+                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-400">
+                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    </svg>
+                </div>
+            </div>
+
+            <!-- Reset Button (Enhanced) -->
+            <a href="{{ request()->url() }}"
+                class="inline-flex items-center gap-2 px-3 py-2 border border-gray-200 bg-white rounded-lg text-gray-500 hover:text-red-600 hover:border-red-100 hover:bg-red-50 transition-all shadow-sm text-[13px] font-medium shrink-0"
+                title="Clear Filters">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+                <span>Clear</span>
+            </a>
+        </div>
+    </form>
+
     <!-- Data Table Section -->
-    <div class="bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm mt-4">
+    <div class="bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm">
         <div class="overflow-x-auto">
             <table class="w-full text-left border-collapse">
                 <thead>
@@ -164,10 +339,25 @@
                         <th scope="col"
                             class="w-px whitespace-nowrap px-3 py-2 text-xs font-medium text-gray-500 border-r border-gray-200 text-center">
                             <div class="flex items-center justify-center space-x-1.5">
-                                <svg class="w-3.5 h-3.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                <svg class="w-3.5 h-3.5 text-gray-400" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                                 </svg>
                                 <span>Status</span>
+                            </div>
+                        </th>
+
+                        <!-- Due Date -->
+                        <th scope="col"
+                            class="w-px whitespace-nowrap px-3 py-2 text-xs font-medium text-gray-500 border-r border-gray-200 text-center">
+                            <div class="flex items-center justify-center space-x-1.5">
+                                <svg class="w-3.5 h-3.5 text-gray-400" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                                <span>Jatuh Tempo</span>
                             </div>
                         </th>
 
@@ -240,9 +430,21 @@
                             <!-- Status -->
                             <td class="w-px whitespace-nowrap px-3 py-2.5 border-r border-gray-200 text-center">
                                 @if($sale->status === 'completed')
-                                    <span class="inline-flex items-center px-2 py-1 rounded text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-100 shadow-sm leading-none">Lunas</span>
+                                    <span
+                                        class="inline-flex items-center px-2 py-1 rounded text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-100 shadow-sm leading-none">Lunas</span>
                                 @else
-                                    <span class="inline-flex items-center px-2 py-1 rounded text-[11px] font-semibold bg-amber-50 text-amber-700 border border-amber-100 shadow-sm leading-none">Cicilan</span>
+                                    <span
+                                        class="inline-flex items-center px-2 py-1 rounded text-[11px] font-semibold bg-amber-50 text-amber-700 border border-amber-100 shadow-sm leading-none">Cicilan</span>
+                                @endif
+                            </td>
+
+                            <!-- Due Date -->
+                            <td class="w-px whitespace-nowrap px-3 py-2.5 border-r border-gray-200 text-center">
+                                @if($sale->due_date)
+                                    <span
+                                        class="text-[12px] text-gray-600 font-medium">{{ \Carbon\Carbon::parse($sale->due_date)->translatedFormat('d M Y') }}</span>
+                                @else
+                                    <span class="text-gray-400 text-[12px]">&mdash;</span>
                                 @endif
                             </td>
 
@@ -264,7 +466,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="8" class="px-3 py-10 text-center">
+                            <td colspan="9" class="px-3 py-10 text-center">
                                 <svg class="mx-auto h-8 w-8 text-gray-300" fill="none" viewBox="0 0 24 24"
                                     stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"

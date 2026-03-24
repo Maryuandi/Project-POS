@@ -77,7 +77,19 @@ class ProductController extends Controller
 
         unset($validatedData['image']);
 
-        Product::create($validatedData);
+        $product = Product::create($validatedData);
+
+        if ($product->stock > 0) {
+            \App\Models\StockMovement::create([
+                'product_id' => $product->id,
+                'type' => 'IN',
+                'qty_change' => $product->stock,
+                'reference_type' => 'adjustment',
+                'reason' => 'Stok awal produk baru',
+                'occurred_at' => now(),
+                'created_by' => \Illuminate\Support\Facades\Auth::id() ?? 1,
+            ]);
+        }
 
         return redirect()->route('admin.products.index')->with('message', 'Product created successfully.');
     }
@@ -112,7 +124,22 @@ class ProductController extends Controller
 
         unset($validatedData['image']);
 
+        $oldStock = $product->stock;
         $product->update($validatedData);
+        $newStock = $product->stock;
+
+        if ($oldStock != $newStock) {
+            $diff = $newStock - $oldStock;
+            \App\Models\StockMovement::create([
+                'product_id' => $product->id,
+                'type' => $diff > 0 ? 'IN' : 'OUT',
+                'qty_change' => abs($diff),
+                'reference_type' => 'adjustment',
+                'reason' => 'Update data produk (ubah stok manual)',
+                'occurred_at' => now(),
+                'created_by' => \Illuminate\Support\Facades\Auth::id() ?? 1,
+            ]);
+        }
 
         return redirect()->route('admin.products.index')->with('message', 'Product updated successfully.');
     }

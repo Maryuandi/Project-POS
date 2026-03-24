@@ -272,14 +272,84 @@
                         <div class="space-y-4">
                             <div>
                                 <label class="block text-[13px] font-bold text-gray-700 mb-2">Payment Method</label>
-                                <div class="grid grid-cols-3 gap-3">
+                                <div class="grid grid-cols-3 gap-3 mb-4">
                                     <template x-for="method in ['cash', 'qris', 'transfer']">
                                         <button @click="paymentMethod = method"
-                                            :class="paymentMethod === method ? 'border-blue-600 bg-blue-50 text-blue-700' : 'border-gray-200 text-gray-600'"
-                                            class="rounded-lg border px-3 py-2 text-center text-[13px] font-medium transition-all"
+                                            :class="paymentMethod === method ? 'border-blue-600 bg-blue-50 text-blue-700 ring-1 ring-blue-600 shadow-sm' : 'border-gray-200 text-gray-600 hover:border-gray-300 hover:bg-gray-50'"
+                                            class="rounded-lg border px-3 py-2.5 text-center text-[13px] font-bold transition-all"
                                             x-text="method.toUpperCase()"></button>
                                     </template>
                                 </div>
+
+                                <!-- QRIS Info -->
+                                <template x-if="paymentMethod === 'qris'">
+                                    <div
+                                        class="animate-in slide-in-from-top-2 duration-300 border border-blue-100 bg-blue-50/50 rounded-xl p-4 text-center mb-4">
+                                        <div
+                                            class="inline-flex items-center gap-1.5 px-3 py-1 bg-white rounded-full border border-blue-200 shadow-sm mb-4">
+                                            <span class="w-2 h-2 rounded-full bg-blue-600 animate-pulse"></span>
+                                            <span class="text-xs font-black text-blue-800 tracking-wide uppercase">QRIS
+                                                Payment</span>
+                                        </div>
+
+                                        <!-- QRIS Empty State Placeholder -->
+                                        <div
+                                            class="max-w-[160px] mx-auto w-full aspect-square border-2 border-dashed border-blue-200 rounded-2xl bg-white flex flex-col items-center justify-center p-4 mb-4 text-blue-400">
+                                            <svg class="w-12 h-12 mb-2 opacity-60" fill="none" stroke="currentColor"
+                                                viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                                    d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z">
+                                                </path>
+                                            </svg>
+                                            <span
+                                                class="text-[11px] font-bold uppercase tracking-wider text-blue-600/70">QRIS
+                                                Image</span>
+                                        </div>
+
+                                        <p class="text-[11px] text-blue-700 font-medium leading-snug">Ganti bagian ini
+                                            dengan mamasukkan gambar kode QRIS asli</p>
+                                    </div>
+                                </template>
+
+                                <!-- Transfer Info -->
+                                <template x-if="paymentMethod === 'transfer'">
+                                    <div
+                                        class="animate-in slide-in-from-top-2 duration-300 border border-blue-100 bg-blue-50/50 rounded-xl p-4 mb-4">
+                                        <h4
+                                            class="text-[11px] font-bold text-blue-800 uppercase tracking-widest mb-3 flex items-center gap-2">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z">
+                                                </path>
+                                            </svg>
+                                            Informasi Rekening
+                                        </h4>
+                                        <div
+                                            class="flex items-center gap-4 bg-white p-3.5 rounded-xl border border-blue-100 shadow-sm relative overflow-hidden">
+                                            <!-- Bank Decorator -->
+                                            <div class="absolute left-0 top-0 bottom-0 w-1 bg-blue-600"></div>
+                                            <!-- BCA TEXT Logo -->
+                                            <div
+                                                class="w-14 h-9 bg-[#005c8a] rounded shadow-sm flex items-center justify-center text-white font-black italic tracking-tighter shrink-0 ml-1">
+                                                BCA</div>
+                                            <div>
+                                                <p
+                                                    class="text-[17px] font-black text-gray-900 tracking-[0.08em] font-mono leading-none mb-1">
+                                                    8735 0912 334</p>
+                                                <p class="text-[10px] font-bold text-gray-500 uppercase tracking-wider">A.N
+                                                    Devrizal Maryuandi</p>
+                                            </div>
+                                        </div>
+                                        <p class="text-[11px] text-blue-600 mt-3 font-medium flex gap-1.5 leading-snug">
+                                            <svg class="w-3.5 h-3.5 mt-0.5 shrink-0" fill="none" stroke="currentColor"
+                                                viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                            </svg>
+                                            Pastikan nominal transfer sesuai dengan total tagihan.
+                                        </p>
+                                    </div>
+                                </template>
                             </div>
 
                             <!-- Installment Toggle -->
@@ -331,6 +401,12 @@
                                                 x-text="'Rp ' + formatNumber(Math.max(0, total - (downPayment || 0)))"></span>
                                         </div>
                                     </div>
+
+                                    <div class="mt-4">
+                                        <label class="block text-[13px] font-bold text-gray-700 mb-2">Jatuh Tempo</label>
+                                        <input type="date" x-model="dueDate"
+                                            class="block w-full px-4 py-3 border border-gray-300 rounded-xl text-[14px] font-medium placeholder-gray-400 focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 transition-all">
+                                    </div>
                                 </div>
                             </template>
 
@@ -355,8 +431,8 @@
                     </div>
                     <div class="bg-gray-50 px-5 py-4 flex flex-row-reverse rounded-b-2xl border-t border-gray-100 gap-3">
                         <button @click="processPayment()"
-                            :disabled="isProcessing || (!isInstallment && paymentMethod === 'cash' && amountReceived < total) || (isInstallment && (downPayment <= 0 || downPayment > total))"
-                            :class="(isProcessing || (!isInstallment && paymentMethod === 'cash' && amountReceived < total) || (isInstallment && (downPayment <= 0 || downPayment > total))) ? 'bg-gray-400' : isInstallment ? 'bg-amber-500 hover:bg-amber-600' : 'bg-blue-600 hover:bg-blue-700'"
+                            :disabled="isProcessing || (!isInstallment && paymentMethod === 'cash' && amountReceived < total) || (isInstallment && (downPayment <= 0 || downPayment > total || !dueDate))"
+                            :class="(isProcessing || (!isInstallment && paymentMethod === 'cash' && amountReceived < total) || (isInstallment && (downPayment <= 0 || downPayment > total || !dueDate))) ? 'bg-gray-400' : isInstallment ? 'bg-amber-500 hover:bg-amber-600' : 'bg-blue-600 hover:bg-blue-700'"
                             class="inline-flex w-full justify-center rounded-lg px-4 py-2.5 text-[14px] font-semibold bg-blue-600 text-white shadow-sm transition-all sm:w-auto">
                             <svg x-show="isProcessing" class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none"
                                 viewBox="0 0 24 24">
@@ -389,6 +465,7 @@
                 isProcessing: false,
                 isInstallment: false,
                 downPayment: 0,
+                dueDate: '',
 
                 addToCart(product) {
                     if (product.stock <= 0) return;
@@ -436,6 +513,7 @@
                 openCheckout() {
                     this.amountReceived = this.total;
                     this.downPayment = 0;
+                    this.dueDate = '';
                     this.isInstallment = false;
                     this.showCheckout = true;
                 },
@@ -449,6 +527,18 @@
                     this.isProcessing = true;
 
                     try {
+                        let payload = {
+                            cart: this.cart,
+                            payment_method: this.paymentMethod,
+                            amount_received: this.amountReceived,
+                            is_installment: this.isInstallment
+                        };
+
+                        if (this.isInstallment) {
+                            payload.down_payment = this.downPayment;
+                            payload.due_date = this.dueDate;
+                        }
+
                         const response = await fetch('{{ route("admin.pos.checkout") }}', {
                             method: 'POST',
                             headers: {
@@ -456,13 +546,7 @@
                                 'X-CSRF-TOKEN': '{{ csrf_token() }}',
                                 'Accept': 'application/json'
                             },
-                            body: JSON.stringify({
-                                cart: this.cart,
-                                payment_method: this.paymentMethod,
-                                amount_received: this.amountReceived,
-                                is_installment: this.isInstallment,
-                                down_payment: this.downPayment
-                            })
+                            body: JSON.stringify(payload)
                         });
 
                         const result = await response.json();

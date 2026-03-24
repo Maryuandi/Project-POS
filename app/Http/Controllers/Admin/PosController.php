@@ -41,7 +41,8 @@ class PosController extends Controller
             'payment_method' => 'required|string',
             'amount_received' => 'required|numeric',
             'is_installment' => 'sometimes|boolean',
-            'down_payment' => 'sometimes|numeric|min:1',
+            'down_payment' => 'exclude_unless:is_installment,true|required|numeric|min:1',
+            'due_date' => 'exclude_unless:is_installment,true|required|date|after_or_equal:today',
         ]);
 
         $cart = $request->cart;
@@ -49,21 +50,22 @@ class PosController extends Controller
         $amountReceived = $request->amount_received;
         $isInstallment = $request->boolean('is_installment', false);
         $downPayment = $request->input('down_payment', 0);
-        
+        $dueDate = $request->input('due_date');
+
         $totalAmount = 0;
         $itemsToProcess = [];
 
         foreach ($cart as $item) {
             $product = Product::find($item['id']);
-            
+
             if (!$product || $product->stock < $item['qty']) {
                 session()->flash('error', 'Stok tidak mencukupi untuk ' . ($product ? $product->name : 'produk tidak ditemukan') . '.');
                 return response()->json(['message' => 'Stock insufficient'], 400);
             }
-            
+
             $subtotal = $product->price * $item['qty'];
             $totalAmount += $subtotal;
-            
+
             $itemsToProcess[] = [
                 'product_id' => $product->id,
                 'quantity' => $item['qty'],
@@ -84,16 +86,18 @@ class PosController extends Controller
         }
 
         try {
-            DB::transaction(function () use ($totalAmount, $paymentMethod, $itemsToProcess, $isInstallment, $downPayment, $amountReceived) {
-                
+            DB::transaction(function () use ($totalAmount, $paymentMethod, $itemsToProcess, $isInstallment, $downPayment, $amountReceived, $dueDate) {
+
                 if ($isInstallment) {
                     $amountPaid = $downPayment;
                     $amountDue = $totalAmount - $downPayment;
                     $status = $amountDue <= 0 ? 'completed' : 'installment';
+                    $finalDueDate = $dueDate;
                 } else {
                     $amountPaid = $totalAmount;
                     $amountDue = 0;
                     $status = 'completed';
+                    $finalDueDate = null;
                 }
 
                 $sale = Sale::create([
@@ -105,6 +109,7 @@ class PosController extends Controller
                     'amount_due' => $amountDue,
                     'payment_method' => $paymentMethod,
                     'status' => $status,
+                    'due_date' => $finalDueDate,
                 ]);
 
                 foreach ($itemsToProcess as $item) {
