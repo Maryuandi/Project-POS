@@ -78,5 +78,34 @@ class DatabaseSeeder extends Seeder
             'price' => 490000,
             'distributor' => 'Indo Board Game',
         ]);
+        // 4. Generate 1,000 Bulk Dummy Products via Faker
+        $this->command->info('Generating 1,000 dummy products...');
+        
+        $faker = \Faker\Factory::create();
+        $products = [];
+        $categories = [$actionFiguresCategory->id, $boardGamesCategory->id];
+
+        for ($i = 0; $i < 1000; $i++) {
+            $cost = $faker->numberBetween(10, 500) * 1000;
+            $products[] = [
+                'name' => ucwords($faker->words(rand(2, 4), true)),
+                'code' => strtoupper($faker->lexify('???')) . '-' . $faker->unique()->numerify('####'),
+                'category_id' => $categories[array_rand($categories)],
+                'image_path' => 'https://images.unsplash.com/photo-1593305841991-05c297ba4575?auto=format&fit=crop&q=80&w=300&h=300', // Default shared image
+                'stock' => $faker->numberBetween(0, 999),
+                'cost' => $cost,
+                'price' => $cost + ($faker->numberBetween(5, 50) * 5000),
+                'distributor' => $faker->company(),
+                'created_at' => now(),
+                'updated_at' => now(),
+            ];
+        }
+
+        // Chunk inserts for extreme performance
+        foreach (array_chunk($products, 250) as $chunk) {
+            Product::insert($chunk);
+        }
+        
+        $this->command->info('1,000 dummy products inserted successfully!');
     }
 }

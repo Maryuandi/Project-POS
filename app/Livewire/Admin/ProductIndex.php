@@ -92,11 +92,12 @@ class ProductIndex extends Component
                 $query->where('stock', 0);
             })
             ->latest()
-            ->paginate(10);
+            ->paginate(20);
 
         return view('livewire.admin.product-index', [
             'products' => $products,
-            'categoriesList' => Category::orderBy('name')->get()
+            'categoriesList' => Category::orderBy('name')->get(),
+            'unpaidInstallments' => \App\Models\Sale::with('cashier')->where('status', 'installment')->orderByDesc('created_at')->get()
         ]);
     }
 }

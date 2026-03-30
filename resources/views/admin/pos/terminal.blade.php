@@ -292,22 +292,15 @@
                                                 Payment</span>
                                         </div>
 
-                                        <!-- QRIS Empty State Placeholder -->
-                                        <div
-                                            class="max-w-[160px] mx-auto w-full aspect-square border-2 border-dashed border-blue-200 rounded-2xl bg-white flex flex-col items-center justify-center p-4 mb-4 text-blue-400">
-                                            <svg class="w-12 h-12 mb-2 opacity-60" fill="none" stroke="currentColor"
-                                                viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                                                    d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z">
-                                                </path>
-                                            </svg>
-                                            <span
-                                                class="text-[11px] font-bold uppercase tracking-wider text-blue-600/70">QRIS
-                                                Image</span>
+                                        <!-- QRIS Image -->
+                                        <div class="max-w-[400px] mx-auto w-full mb-4">
+                                            <img src="{{ asset('images/qris.png') }}" alt="QRIS VICTORY TOYS"
+                                                class="w-full rounded-2xl shadow-lg border-2 border-white ring-1 ring-blue-100">
                                         </div>
 
-                                        <p class="text-[11px] text-blue-700 font-medium leading-snug">Ganti bagian ini
-                                            dengan mamasukkan gambar kode QRIS asli</p>
+                                        <p
+                                            class="text-[11px] text-blue-700 font-bold leading-snug uppercase tracking-tight">
+                                            Scan QR untuk pembayaran via QRIS</p>
                                     </div>
                                 </template>
 
@@ -337,7 +330,7 @@
                                                     class="text-[17px] font-black text-gray-900 tracking-[0.08em] font-mono leading-none mb-1">
                                                     8735 0912 334</p>
                                                 <p class="text-[10px] font-bold text-gray-500 uppercase tracking-wider">A.N
-                                                    Devrizal Maryuandi</p>
+                                                    Victor</p>
                                             </div>
                                         </div>
                                         <p class="text-[11px] text-blue-600 mt-3 font-medium flex gap-1.5 leading-snug">

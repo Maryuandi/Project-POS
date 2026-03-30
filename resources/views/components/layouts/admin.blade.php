@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>{{ $title ?? config('app.name', 'Laravel') }}</title>
+    <title>{{ $title ?? config('app.name', 'Victory Toys') }}</title>
 
     <!-- Google Fonts: Inter -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -48,7 +48,7 @@
                     <div x-show="sidebarExpanded" class="flex w-full items-center justify-between gap-x-2 truncate">
                         <div class="truncate text-left">
                             <p class="truncate whitespace-nowrap text-[14px] font-medium text-gray-900 tracking-tight">
-                                {{ config('app.name', 'POS TOYS') }}
+                                {{ config('app.name', 'Victory Toys') }}
                             </p>
                             <p
                                 class="text-left text-[12px] text-gray-400 font-medium tracking-normal leading-none mt-1">
@@ -232,7 +232,7 @@
                             d="M4 6h16M4 12h16M4 18h16"></path>
                     </svg>
                 </button>
-                <div class="ml-4 font-semibold text-gray-900">POS TOYS</div>
+                <div class="ml-4 font-semibold text-gray-900">Victory Toys</div>
             </header>
 
             <div class="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8">

@@ -66,6 +66,7 @@ class ProductController extends Controller
             'is_active' => 'boolean',
             'image' => 'nullable|image|max:10240',
             'image_path' => 'nullable|string',
+            'notes' => 'nullable|string|max:1000',
         ];
 
         $validatedData = $request->validate($rules);
@@ -85,7 +86,7 @@ class ProductController extends Controller
                 'type' => 'IN',
                 'qty_change' => $product->stock,
                 'reference_type' => 'adjustment',
-                'reason' => 'Stok awal produk baru',
+                'reason' => $request->filled('notes') ? $request->notes : 'Stok awal produk baru',
                 'occurred_at' => now(),
                 'created_by' => \Illuminate\Support\Facades\Auth::id() ?? 1,
             ]);
@@ -113,6 +114,7 @@ class ProductController extends Controller
             'is_active' => 'boolean',
             'image' => 'nullable|image|max:10240',
             'image_path' => 'nullable|string',
+            'notes' => 'nullable|string|max:1000',
         ];
 
         $validatedData = $request->validate($rules);
@@ -135,7 +137,7 @@ class ProductController extends Controller
                 'type' => $diff > 0 ? 'IN' : 'OUT',
                 'qty_change' => abs($diff),
                 'reference_type' => 'adjustment',
-                'reason' => 'Update data produk (ubah stok manual)',
+                'reason' => $request->filled('notes') ? $request->notes : 'Update data produk (ubah stok manual)',
                 'occurred_at' => now(),
                 'created_by' => \Illuminate\Support\Facades\Auth::id() ?? 1,
             ]);

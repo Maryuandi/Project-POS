@@ -94,6 +94,14 @@
                         @error('stock') <p class="text-red-500 text-xs mt-1.5 font-medium">{{ $message }}</p> @enderror
                     </div>
 
+                    <div class="col-span-1 md:col-span-2">
+                        <label for="notes" class="block text-[13px] font-medium text-gray-700 mb-1.5">Catatan Stok Awal (Optional)</label>
+                        <textarea id="notes" name="notes" rows="2"
+                            class="block w-full rounded-md border-gray-300 py-2 px-3 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 text-[14px] shadow-sm transition-shadow" 
+                            placeholder="Contoh: Stok awal gudang, pembukaan toko, dll.">{{ old('notes') }}</textarea>
+                        @error('notes') <p class="text-red-500 text-xs mt-1.5 font-medium">{{ $message }}</p> @enderror
+                    </div>
+
                     <div class="col-span-1">
                         <label for="cost" class="block text-[13px] font-medium text-gray-700 mb-1.5">Harga Beli (Cost Price)</label>
                         <div class="relative">

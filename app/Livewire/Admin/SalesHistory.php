@@ -10,15 +10,45 @@ class SalesHistory extends Component
 {
     use WithPagination;
 
+    #[Url]
+    public $search = '';
+
+    #[Url]
+    public $filterStatus = '';
+
+    #[Url]
+    public $filterDate = 'semua';
+
+    #[Url]
+    public $startDate = '';
+
+    #[Url]
+    public $endDate = '';
+
+    public function updatingSearch()
+    {
+        $this->resetPage();
+    }
+
+    public function updatingFilterStatus()
+    {
+        $this->resetPage();
+    }
+
+    public function updatingFilterDate()
+    {
+        $this->resetPage();
+    }
+
     public function render()
     {
         $query = Sale::with('cashier');
 
-        $search = request('search');
-        $statusFilter = request('filterStatus');
-        $filterDate = request('filterDate', 'semua');
-        $startDate = request('startDate');
-        $endDate = request('endDate');
+        $search = $this->search;
+        $statusFilter = $this->filterStatus;
+        $filterDate = $this->filterDate;
+        $startDate = $this->startDate;
+        $endDate = $this->endDate;
 
         if (!empty($search)) {
             $searchTerm = strtolower($search);
@@ -67,12 +97,19 @@ class SalesHistory extends Component
             ->orderBy('due_date', 'asc')
             ->get();
 
+        // Unpaid installments for reminder modal
+        $unpaidInstallments = Sale::with('cashier')
+            ->where('status', 'installment')
+            ->orderByDesc('created_at')
+            ->get();
+
         return view('livewire.admin.sales-history', [
             'sales' => $sales,
             'totalRevenue' => $totalRevenue,
             'totalTransactions' => $totalTransactions,
             'totalProductsSold' => $totalProductsSold,
             'upcomingDueInstallments' => $upcomingDueInstallments,
+            'unpaidInstallments' => $unpaidInstallments,
             'search' => $search,
             'filterStatus' => $statusFilter,
             'filterDate' => $filterDate,

@@ -61,13 +61,46 @@ class Dashboard extends Component
             ->orderBy('due_date', 'asc')
             ->get();
 
+        // Total products sold (today)
+        $totalProductsSold = SaleItem::whereHas('sale', fn($q) => $q->where('sold_at', '>=', $today))->sum('qty');
+
+        // Chart data: Daily (last 7 days)
+        $dailyChart = collect(range(6, 0))->map(function ($daysAgo) {
+            $date = now()->subDays($daysAgo);
+            return [
+                'label' => $date->translatedFormat('d M'),
+                'value' => (float) Sale::whereDate('sold_at', $date->toDateString())->sum('amount_paid'),
+            ];
+        });
+
+        // Chart data: Monthly (Current Year Months)
+        $monthlyChart = collect(range(1, 12))->map(function ($month) {
+            $date = \Carbon\Carbon::create(now()->year, $month, 1);
+            return [
+                'label' => $date->translatedFormat('F'),
+                'value' => (float) Sale::whereYear('sold_at', now()->year)
+                    ->whereMonth('sold_at', $month)
+                    ->sum('amount_paid'),
+            ];
+        });
+
+        // Chart data: Yearly (From 2024 onwards)
+        $currentYear = now()->year;
+        $yearlyChart = collect(range(2024, $currentYear + 1))->map(function ($year) {
+            return [
+                'label' => (string) $year,
+                'value' => (float) Sale::whereYear('sold_at', $year)->sum('amount_paid'),
+            ];
+        });
+
         return view('livewire.admin.dashboard', compact(
             'todayRevenue', 'todayOrders', 'todayAvg',
             'revenueChange', 'ordersChange',
             'lowStockCount', 'outOfStockCount',
             'topProducts', 'recentSales',
             'pendingInstallments', 'totalAmountDue',
-            'upcomingDueInstallments'
+            'upcomingDueInstallments', 'totalProductsSold',
+            'dailyChart', 'monthlyChart', 'yearlyChart'
         ));
     }
 }

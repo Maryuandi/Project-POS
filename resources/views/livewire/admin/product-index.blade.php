@@ -272,13 +272,6 @@
                 </tbody>
             </table>
         </div>
-
-        <!-- Pagination Wrapper -->
-        @if ($products->hasPages())
-            <div class="px-6 py-3 border-t border-gray-100 bg-gray-50/50">
-                {{ $products->links(data: ['scrollTo' => false]) }}
-            </div>
-        @endif
     </div>
 
     <!-- Alpine.js Delete Confirmation Modal -->

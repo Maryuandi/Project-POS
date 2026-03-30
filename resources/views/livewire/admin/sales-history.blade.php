@@ -15,15 +15,35 @@
             <p class="text-sm text-gray-500 mt-1">View completed transactions and sales records</p>
         </div>
 
-        <button type="button"
-            class="inline-flex items-center justify-center px-4 py-2 text-sm font-semibold text-white bg-blue-600 rounded-lg shadow-sm hover:bg-blue-700 transition-colors">
-            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
-                </path>
-            </svg>
-            Export Data
-        </button>
+        <div class="flex items-center gap-3">
+            <button type="button"
+                class="inline-flex items-center justify-center px-4 py-2 text-sm font-semibold text-white bg-blue-600 rounded-lg shadow-sm hover:bg-blue-700 transition-colors">
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
+                    </path>
+                </svg>
+                Export Data
+            </button>
+
+            <!-- Notification Bell (Unpaid Installments) -->
+            <button type="button" @click="$dispatch('open-reminder-modal')"
+                class="flex items-center justify-center w-10 h-10 border border-amber-200 bg-amber-50 rounded-lg text-amber-700 hover:text-amber-800 hover:border-amber-300 hover:bg-amber-100 transition-all shadow-sm relative shrink-0"
+                title="Pengingat Cicilan">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                        d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0" />
+                </svg>
+                <span class="sr-only">Pengingat Cicilan</span>
+                @if (isset($unpaidInstallments) && count($unpaidInstallments) > 0)
+                    <span class="absolute -top-1 -right-1 flex h-3.5 w-3.5">
+                        <span
+                            class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                        <span class="relative inline-flex rounded-full h-3.5 w-3.5 bg-red-500 border-2 border-white"></span>
+                    </span>
+                @endif
+            </button>
+        </div>
     </div>
 
     <!-- Due Date Information Banners -->
@@ -481,12 +501,109 @@
                 </tbody>
             </table>
         </div>
-
         <!-- Pagination Wrapper -->
         @if ($sales->hasPages())
             <div class="px-6 py-3 border-t border-gray-100 bg-gray-50/50">
-                {{ $sales->links(data: ['scrollTo' => false]) }}
+                {{ $sales->links('livewire.admin.pagination', ['scrollTo' => false]) }}
             </div>
         @endif
+    </div>
+
+    <!-- Alpine.js Reminder Modal -->
+    <div x-data="{ open: false }" x-on:open-reminder-modal.window="open = true" x-show="open"
+        class="fixed inset-0 z-[99998] overflow-y-auto" style="display: none;">
+        <div class="flex min-h-screen items-center justify-center p-4 text-center sm:p-0">
+            <div class="fixed inset-0 bg-gray-900/60 backdrop-blur-sm transition-opacity" @click="open = false"
+                x-show="open" x-transition:outline></div>
+
+            <div x-show="open" x-transition:enter="transition ease-out duration-300"
+                x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+                x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100"
+                class="relative transform overflow-hidden rounded-2xl bg-white text-left shadow-2xl transition-all sm:my-8 sm:w-full sm:max-w-xl border border-gray-100 flex flex-col max-h-[85vh]">
+
+                <!-- Modal Header -->
+                <div
+                    class="px-6 py-4 border-b border-gray-100 flex items-center justify-between bg-gray-50/80 shrink-0">
+                    <div class="flex items-center gap-3">
+                        <div
+                            class="w-10 h-10 rounded-full bg-amber-100 flex items-center justify-center text-amber-600">
+                            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                        </div>
+                        <div>
+                            <h3 class="text-base font-bold text-gray-900">Pengingat Tagihan Cicilan</h3>
+                            <p class="text-[13px] text-gray-500 font-medium">Transaksi yang belum lunas hari ini.</p>
+                        </div>
+                    </div>
+                    <button type="button" @click="open = false"
+                        class="text-gray-400 hover:text-gray-500 p-2 rounded-full hover:bg-gray-100 transition-colors">
+                        <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+
+                <!-- Modal Body (Scrollable) -->
+                <div class="p-0 overflow-y-auto grow">
+                    @if (isset($unpaidInstallments) && count($unpaidInstallments) > 0)
+                        <ul class="divide-y divide-gray-100">
+                            @foreach ($unpaidInstallments as $installment)
+                                <li class="p-5 hover:bg-gray-50/50 transition-colors">
+                                    <div class="flex items-start justify-between gap-4">
+                                        <div class="min-w-0">
+                                            <div class="flex items-center gap-2 mb-1">
+                                                <span
+                                                    class="text-[14px] font-bold text-gray-900">{{ $installment->invoice_no ?? '#' . str_pad($installment->id, 6, '0', STR_PAD_LEFT) }}</span>
+                                                <span
+                                                    class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-700">Belum
+                                                    Lunas</span>
+                                            </div>
+                                            <p class="text-[13px] text-gray-500 mb-2">Kasir: <span
+                                                    class="font-medium text-gray-700">{{ $installment->cashier->name ?? 'System' }}</span>
+                                                •
+                                                {{ $installment->sold_at ? $installment->sold_at->format('d M Y, H:i') : $installment->created_at->format('d M Y, H:i') }}
+                                            </p>
+
+                                            <div class="flex items-center gap-4 text-[13px]">
+                                                <div>
+                                                    <span class="text-gray-400">Terbayar:</span>
+                                                    <span class="font-bold text-emerald-600">Rp
+                                                        {{ number_format($installment->amount_paid, 0, ',', '.') }}</span>
+                                                </div>
+                                                <div>
+                                                    <span class="text-gray-400">Sisa Tagihan:</span>
+                                                    <span class="font-bold text-red-600">Rp
+                                                        {{ number_format($installment->amount_due, 0, ',', '.') }}</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <a href="{{ route('admin.sales.show', $installment->id) }}" wire:navigate
+                                            class="shrink-0 inline-flex items-center justify-center px-4 py-2 text-[13px] font-semibold text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors shadow-sm">
+                                            Update Cicilan
+                                        </a>
+                                    </div>
+                                </li>
+                            @endforeach
+                        </ul>
+                    @else
+                        <div class="py-12 px-6 text-center">
+                            <div
+                                class="w-16 h-16 rounded-full bg-gray-50 flex items-center justify-center mx-auto mb-4 border border-gray-100">
+                                <svg class="w-8 h-8 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                            </div>
+                            <h4 class="text-[15px] font-bold text-gray-900 mb-1">Semua Tagihan Lunas!</h4>
+                            <p class="text-[13px] text-gray-500">Tidak ada transaksi cicilan yang perlu diperhatikan saat
+                                ini.</p>
+                        </div>
+                    @endif
+                </div>
+            </div>
+        </div>
     </div>
 </div>
