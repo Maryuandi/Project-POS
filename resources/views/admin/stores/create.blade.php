@@ -1,37 +1,32 @@
 @extends('layouts.admin')
 
 @section('content')
-    <div class="animate-in fade-in duration-300 relative w-full pb-10" x-data="categoryForm()">
-
-        <!-- Breadcrumbs -->
+    <div class="animate-in fade-in duration-300 relative w-full pb-10" x-data="storeForm()">
         <nav class="flex items-center space-x-1.5 text-[13px] font-medium mb-2" aria-label="Breadcrumb">
-            <a href="{{ route('admin.categories.index') }}"
-                class="text-gray-400 hover:text-gray-600 transition-colors">Categories</a>
+            <a href="{{ route('admin.stores.index') }}"
+                class="text-gray-400 hover:text-gray-600 transition-colors">Store</a>
             <svg class="w-3 h-3 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
             </svg>
-            <span class="text-gray-500 font-bold uppercase tracking-widest text-[11px]">Create Category</span>
+            <span class="text-gray-500 font-bold tracking-widest text-[11px]">Create Store</span>
         </nav>
 
-        <!-- Header -->
         <div class="mb-5 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
             <div>
-                <h1 class="text-2xl font-bold text-gray-900 tracking-tight">Create Category</h1>
-                <p class="text-sm text-gray-500 mt-1 font-medium">Add a new product category to your system.</p>
+                <h1 class="text-2xl font-bold text-gray-900 tracking-tight">Create Store</h1>
+                <p class="text-sm text-gray-500 mt-1 font-medium">Tambah data store baru.</p>
             </div>
-            <a href="{{ route('admin.categories.index') }}"
+            <a href="{{ route('admin.stores.index') }}"
                 class="inline-flex items-center justify-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors">
-                Back to Categories
+                Kembali
             </a>
         </div>
 
-        <!-- Form Card -->
         <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-            <form action="{{ route('admin.categories.store') }}" method="POST" @submit="isSubmitting = true">
+            <form action="{{ route('admin.stores.store') }}" method="POST" @submit="isSubmitting = true">
                 @csrf
 
                 <div class="px-6 py-6 pb-8 space-y-6">
-
                     @if ($errors->any())
                         <div class="p-4 rounded-md bg-red-50 border border-red-200">
                             <div class="flex items-center">
@@ -46,47 +41,67 @@
                     @endif
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-5">
-
-                        <!-- Basic Information -->
                         <div class="col-span-1 md:col-span-2">
                             <h3
                                 class="text-xs font-semibold text-gray-400 tracking-widest uppercase mb-4 py-2 border-b border-gray-50">
-                                Category Information</h3>
+                                Store Information</h3>
                         </div>
 
-                        <!-- Category Name -->
-                        <div class="col-span-1 md:col-span-2">
+                        <div class="col-span-1">
                             <label for="name"
-                                class="block text-[13px] font-bold text-gray-700 mb-1.5 uppercase tracking-wide">Category
+                                class="block text-[13px] font-bold text-gray-700 mb-1.5 uppercase tracking-wide">Store
                                 Name</label>
                             <input type="text" id="name" name="name" x-model="name" @input="generateCode"
                                 class="block w-full rounded-md border-gray-300 py-2.5 px-3 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 text-[14px] transition-shadow shadow-sm @error('name') border-red-500 bg-red-50/10 @enderror"
-                                placeholder="e.g. Action Figures">
+                                placeholder="e.g. Victory Toys Central">
                             @error('name') <p class="text-red-500 text-xs mt-1.5 font-medium">{{ $message }}</p> @enderror
                         </div>
 
-                        <!-- Category Code -->
-                        <div class="col-span-1 md:col-span-2">
+                        <div class="col-span-1">
                             <label for="code"
-                                class="block text-[13px] font-bold text-gray-700 mb-1.5 uppercase tracking-wide">Category
-                                Code (SKU)</label>
+                                class="block text-[13px] font-bold text-gray-700 mb-1.5 uppercase tracking-wide">Store
+                                ID</label>
                             <div class="relative group">
                                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                     <span class="text-gray-400 text-[14px] font-mono font-bold">#</span>
                                 </div>
                                 <input type="text" id="code" name="code" x-model="code" readonly
                                     class="block w-full rounded-md border-gray-200 bg-gray-50 py-2.5 pl-8 pr-3 text-gray-500 text-[14px] font-mono cursor-not-allowed focus:outline-none shadow-inner"
-                                    placeholder="Auto-generated SKU...">
+                                    placeholder="Auto-generated ID...">
                             </div>
-                            <p class="text-[11px] text-gray-400 mt-2 italic font-medium">Bakal ke-generate otomatis
-                                berdasarkan nama yang kamu ketik.</p>
+                            <p class="text-[11px] text-gray-400 mt-2 italic font-medium">Generate otomatis
+                                berdasarkan nama store.</p>
                             @error('code') <p class="text-red-500 text-xs mt-1.5 font-medium">{{ $message }}</p> @enderror
                         </div>
 
-                        <!-- Status Toggle Card -->
                         <div class="col-span-1 md:col-span-2">
-                            <div class="bg-gray-50/80 rounded-xl border border-gray-200/60 p-5 hover:bg-white hover:shadow-md hover:border-blue-100 transition-all cursor-pointer group"
-                                onclick="document.getElementById('is_active').click()">
+                            <label for="store_category"
+                                class="block text-[13px] font-bold text-gray-700 mb-1.5 uppercase tracking-wide">Store
+                                Category</label>
+                            <select id="store_category" name="store_category"
+                                class="block w-full rounded-md border-gray-300 py-2.5 px-3 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 text-[14px] shadow-sm bg-white @error('store_category') border-red-500 bg-red-50/10 @enderror">
+                                <option value="">Select a Store Category</option>
+                                @foreach (['A', 'B', 'C'] as $storeCategory)
+                                    <option value="{{ $storeCategory }}" {{ old('store_category') === $storeCategory ? 'selected' : '' }}>
+                                        {{ $storeCategory }}
+                                    </option>
+                                @endforeach
+                            </select>
+                            @error('store_category') <p class="text-red-500 text-xs mt-1.5 font-medium">{{ $message }}</p> @enderror
+                        </div>
+
+                        <div class="col-span-1 md:col-span-2">
+                            <label for="address"
+                                class="block text-[13px] font-bold text-gray-700 mb-1.5 uppercase tracking-wide">Store
+                                Address</label>
+                            <textarea id="address" name="address" rows="3"
+                                class="block w-full rounded-md border-gray-300 py-2.5 px-3 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 text-[14px] transition-shadow shadow-sm @error('address') border-red-500 bg-red-50/10 @enderror"
+                                placeholder="Masukkan alamat store...">{{ old('address') }}</textarea>
+                            @error('address') <p class="text-red-500 text-xs mt-1.5 font-medium">{{ $message }}</p> @enderror
+                        </div>
+
+                        <div class="col-span-1 md:col-span-2">
+                            <div class="bg-gray-50/80 rounded-xl border border-gray-200/60 p-5 hover:bg-white hover:shadow-md hover:border-blue-100 transition-all cursor-pointer group">
                                 <label class="flex items-center space-x-4 cursor-pointer">
                                     <div class="flex-shrink-0">
                                         <div
@@ -101,11 +116,12 @@
                                     <div class="flex-grow">
                                         <span
                                             class="text-[14px] font-bold text-gray-900 group-hover:text-blue-600 transition-colors uppercase tracking-tight">Active
-                                            Category</span>
-                                        <p class="text-[12px] text-gray-500 mt-0.5 leading-relaxed">Category ini bakal
-                                            nongol dan bisa dipake di Kasir (POS) maupun List Produk.</p>
+                                            Store</span>
+                                        <p class="text-[12px] text-gray-500 mt-0.5 leading-relaxed">Store ini akan
+                                            muncul dan bisa dipilih di data produk maupun POS.</p>
                                     </div>
                                     <div class="flex-shrink-0">
+                                        <input type="hidden" name="is_active" value="0">
                                         <input type="checkbox" id="is_active" name="is_active" value="1" {{ old('is_active', true) ? 'checked' : '' }}
                                             class="w-5 h-5 text-blue-600 bg-white border-gray-300 rounded focus:ring-blue-600 focus:ring-offset-2 cursor-pointer transition-all">
                                     </div>
@@ -115,11 +131,10 @@
                     </div>
                 </div>
 
-                <!-- Footer Actions -->
                 <div class="px-6 py-4 bg-gray-50 border-t border-gray-200 flex items-center justify-end space-x-3">
-                    <a href="{{ route('admin.categories.index') }}"
+                    <a href="{{ route('admin.stores.index') }}"
                         class="px-5 py-2.5 font-bold text-gray-600 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all text-sm shadow-sm uppercase tracking-wide">
-                        Cancel
+                        Batal
                     </a>
                     <button type="submit" :disabled="isSubmitting"
                         class="inline-flex items-center px-6 py-2.5 font-bold text-white bg-blue-600 border border-blue-700 rounded-lg shadow-[0_4px_10px_rgb(37,99,235,0.3)] hover:bg-blue-700 hover:shadow-none focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all text-sm uppercase tracking-widest disabled:opacity-70 disabled:cursor-not-allowed group">
@@ -131,8 +146,7 @@
                                 d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
                             </path>
                         </svg>
-
-                        <span x-show="!isSubmitting">Save Category</span>
+                        <span x-show="!isSubmitting">Simpan</span>
                         <span x-show="isSubmitting" style="display: none;">Saving...</span>
                     </button>
                 </div>
@@ -141,7 +155,7 @@
     </div>
 
     <script>
-        function categoryForm() {
+        function storeForm() {
             return {
                 name: '{{ old('name') }}',
                 code: '{{ old('code') }}',

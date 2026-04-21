@@ -5,7 +5,6 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Product extends Model
@@ -15,7 +14,7 @@ class Product extends Model
     protected $fillable = [
         'name',
         'code',
-        'category_id',
+        'store_id',
         'image_path',
         'stock',
         'cost',
@@ -25,10 +24,10 @@ class Product extends Model
     ];
 
     /**
-     * Get the category that owns the product.
+     * Get the store that owns the product.
      */
-    public function category(): BelongsTo
+    public function store(): BelongsTo
     {
-        return $this->belongsTo(Category::class);
+        return $this->belongsTo(Store::class);
     }
 }

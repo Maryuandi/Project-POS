@@ -21,12 +21,12 @@ Route::middleware('auth')->group(function () {
 require __DIR__ . '/auth.php';
 
 Route::middleware('auth')->group(function () {
-    Route::get('/admin/categories', \App\Livewire\Admin\CategoryIndex::class)->name('admin.categories.index');
-    Route::get('/admin/categories/create', [\App\Http\Controllers\Admin\CategoryController::class, 'create'])->name('admin.categories.create');
-    Route::post('/admin/categories', [\App\Http\Controllers\Admin\CategoryController::class, 'store'])->name('admin.categories.store');
-    Route::get('/admin/categories/{category}/edit', [\App\Http\Controllers\Admin\CategoryController::class, 'edit'])->name('admin.categories.edit');
-    Route::put('/admin/categories/{category}', [\App\Http\Controllers\Admin\CategoryController::class, 'update'])->name('admin.categories.update');
-    Route::delete('/admin/categories/{category}', [\App\Http\Controllers\Admin\CategoryController::class, 'destroy'])->name('admin.categories.destroy');
+    Route::get('/admin/stores', \App\Livewire\Admin\StoreIndex::class)->name('admin.stores.index');
+    Route::get('/admin/stores/create', [\App\Http\Controllers\Admin\StoreController::class, 'create'])->name('admin.stores.create');
+    Route::post('/admin/stores', [\App\Http\Controllers\Admin\StoreController::class, 'store'])->name('admin.stores.store');
+    Route::get('/admin/stores/{store}/edit', [\App\Http\Controllers\Admin\StoreController::class, 'edit'])->name('admin.stores.edit');
+    Route::put('/admin/stores/{store}', [\App\Http\Controllers\Admin\StoreController::class, 'update'])->name('admin.stores.update');
+    Route::delete('/admin/stores/{store}', [\App\Http\Controllers\Admin\StoreController::class, 'destroy'])->name('admin.stores.destroy');
 
     Route::get('/admin/products', \App\Livewire\Admin\ProductIndex::class)->name('admin.products.index');
     Route::get('/admin/products/create', [\App\Http\Controllers\Admin\ProductController::class, 'create'])->name('admin.products.create');

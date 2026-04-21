@@ -59,13 +59,13 @@
         
         <!-- Right: Filters dropdowns -->
         <div class="flex flex-wrap items-center gap-2 w-full xl:w-auto">
-            <!-- Filter Category -->
+            <!-- Filter Store -->
             <div class="relative min-w-[140px]">
-                <select name="filterCategory" onchange="this.form.submit()" 
+                <select name="filterStore" onchange="this.form.submit()" 
                     class="appearance-none block w-full px-3 py-2 border border-gray-300 bg-white rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-colors shadow-sm pr-8">
-                    <option value="">All Categories</option>
-                    @foreach($categoriesList as $cat)
-                        <option value="{{ $cat->id }}" {{ $filterCategory == $cat->id ? 'selected' : '' }}>{{ $cat->name }}</option>
+                    <option value="">All Stores</option>
+                    @foreach($storesList as $store)
+                        <option value="{{ $store->id }}" {{ $filterStore == $store->id ? 'selected' : '' }}>{{ $store->name }}</option>
                     @endforeach
                 </select>
                 <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-400">
@@ -100,11 +100,11 @@
                             </div>
                         </th>
                         
-                        <!-- Category -->
+                        <!-- Store -->
                         <th scope="col" class="w-px whitespace-nowrap px-3 py-2 text-xs font-medium text-gray-500 border-r border-gray-200">
                             <div class="flex items-center space-x-1.5">
                                 <svg class="w-3.5 h-3.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"></path></svg>
-                                <span>Category</span>
+                                <span>Store</span>
                             </div>
                         </th>
                         
@@ -179,10 +179,10 @@
                                 </div>
                             </td>
 
-                            <!-- Category -->
+                            <!-- Store -->
                             <td class="w-px whitespace-nowrap px-3 py-2.5 border-r border-gray-200">
                                 <span class="inline-flex items-center px-2 py-1 rounded text-[11px] font-medium bg-gray-100 text-gray-700 border border-gray-200/50 shadow-sm leading-none">
-                                    {{ $product->category->name ?? '-' }}
+                                    {{ $product->store->name ?? '-' }}
                                 </span>
                             </td>
 

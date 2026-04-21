@@ -2,12 +2,10 @@
 
 namespace Database\Seeders;
 
-use App\Models\Category;
 use App\Models\Product;
+use App\Models\Store;
 use App\Models\User;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Str;
 
 class DatabaseSeeder extends Seeder
 {
@@ -16,29 +14,40 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // 1. Create Admin User
         User::factory()->create([
             'name' => 'Admin POS',
             'email' => 'admin@local.test',
             'password' => bcrypt('Password123!'),
         ]);
 
-        // 2. Create Categories
-        $actionFiguresCategory = Category::create([
-            'name' => 'Action Figures',
-            'code' => Str::slug('Action Figures'),
+        $storeA = Store::create([
+            'name' => 'Victory Toys Central',
+            'code' => 'VTC-' . rand(1000, 9999),
+            'store_category' => 'Store A',
+            'address' => 'Jl. Merdeka No. 10, Jakarta',
+            'is_active' => true,
         ]);
 
-        $boardGamesCategory = Category::create([
-            'name' => 'Board Games',
-            'code' => Str::slug('Board Games'),
+        $storeB = Store::create([
+            'name' => 'Victory Toys Premium',
+            'code' => 'VTP-' . rand(1000, 9999),
+            'store_category' => 'Store B',
+            'address' => 'Jl. Sudirman No. 88, Bandung',
+            'is_active' => true,
         ]);
 
-        // 3. Create Products
-        $gundamProduct = Product::create([
+        $storeC = Store::create([
+            'name' => 'Victory Toys Warehouse',
+            'code' => 'VTW-' . rand(1000, 9999),
+            'store_category' => 'Store C',
+            'address' => 'Jl. Industri Raya No. 21, Surabaya',
+            'is_active' => true,
+        ]);
+
+        Product::create([
             'name' => 'Gundam RX-78-2 High Grade',
             'code' => 'GRHG-' . rand(1000, 9999),
-            'category_id' => $actionFiguresCategory->id,
+            'store_id' => $storeA->id,
             'image_path' => 'https://images.unsplash.com/photo-1593305841991-05c297ba4575?auto=format&fit=crop&q=80&w=300&h=300',
             'stock' => 50,
             'cost' => 150000,
@@ -46,10 +55,10 @@ class DatabaseSeeder extends Seeder
             'distributor' => 'Multi Toys Indonesia',
         ]);
 
-        $transformersProduct = Product::create([
+        Product::create([
             'name' => 'Optimus Prime Voyager Class',
             'code' => 'OPVC-' . rand(1000, 9999),
-            'category_id' => $actionFiguresCategory->id,
+            'store_id' => $storeA->id,
             'image_path' => 'https://images.unsplash.com/photo-1531571432651-025efe33025d?auto=format&fit=crop&q=80&w=300&h=300',
             'stock' => 15,
             'cost' => 280000,
@@ -57,10 +66,10 @@ class DatabaseSeeder extends Seeder
             'distributor' => 'Kidz Station',
         ]);
 
-        $monopolyProduct = Product::create([
+        Product::create([
             'name' => 'Monopoly Classic',
             'code' => 'MC-' . rand(1000, 9999),
-            'category_id' => $boardGamesCategory->id,
+            'store_id' => $storeB->id,
             'image_path' => 'https://images.unsplash.com/photo-1632501641765-e568d28b0015?auto=format&fit=crop&q=80&w=300&h=300',
             'stock' => 100,
             'cost' => 125000,
@@ -68,30 +77,30 @@ class DatabaseSeeder extends Seeder
             'distributor' => 'Toys City',
         ]);
 
-        $catanProduct = Product::create([
+        Product::create([
             'name' => 'Catan Board Game',
             'code' => 'CBG-' . rand(1000, 9999),
-            'category_id' => $boardGamesCategory->id,
+            'store_id' => $storeC->id,
             'image_path' => 'https://images.unsplash.com/photo-1606167668584-78701c57f13d?auto=format&fit=crop&q=80&w=300&h=300',
             'stock' => 30,
             'cost' => 300000,
             'price' => 490000,
             'distributor' => 'Indo Board Game',
         ]);
-        // 4. Generate 1,000 Bulk Dummy Products via Faker
+
         $this->command->info('Generating 1,000 dummy products...');
-        
+
         $faker = \Faker\Factory::create();
         $products = [];
-        $categories = [$actionFiguresCategory->id, $boardGamesCategory->id];
+        $stores = [$storeA->id, $storeB->id, $storeC->id];
 
         for ($i = 0; $i < 1000; $i++) {
             $cost = $faker->numberBetween(10, 500) * 1000;
             $products[] = [
                 'name' => ucwords($faker->words(rand(2, 4), true)),
                 'code' => strtoupper($faker->lexify('???')) . '-' . $faker->unique()->numerify('####'),
-                'category_id' => $categories[array_rand($categories)],
-                'image_path' => 'https://images.unsplash.com/photo-1593305841991-05c297ba4575?auto=format&fit=crop&q=80&w=300&h=300', // Default shared image
+                'store_id' => $stores[array_rand($stores)],
+                'image_path' => 'https://images.unsplash.com/photo-1593305841991-05c297ba4575?auto=format&fit=crop&q=80&w=300&h=300',
                 'stock' => $faker->numberBetween(0, 999),
                 'cost' => $cost,
                 'price' => $cost + ($faker->numberBetween(5, 50) * 5000),
@@ -101,11 +110,10 @@ class DatabaseSeeder extends Seeder
             ];
         }
 
-        // Chunk inserts for extreme performance
         foreach (array_chunk($products, 250) as $chunk) {
             Product::insert($chunk);
         }
-        
+
         $this->command->info('1,000 dummy products inserted successfully!');
     }
 }

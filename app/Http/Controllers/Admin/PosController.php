@@ -15,7 +15,7 @@ class PosController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Product::with('category')->where('is_active', true);
+        $query = Product::with('store')->where('is_active', true);
 
         $search = $request->query('search');
         if ($search) {
@@ -23,7 +23,7 @@ class PosController extends Controller
                 $q->whereRaw('LOWER(name) LIKE ?', ['%' . strtolower($search) . '%'])
                     ->orWhereRaw('LOWER(code) LIKE ?', ['%' . strtolower($search) . '%'])
                     ->orWhereRaw('LOWER(distributor) LIKE ?', ['%' . strtolower($search) . '%'])
-                    ->orWhereHas('category', function ($qc) use ($search) {
+                    ->orWhereHas('store', function ($qc) use ($search) {
                         $qc->whereRaw('LOWER(name) LIKE ?', ['%' . strtolower($search) . '%']);
                     });
             });

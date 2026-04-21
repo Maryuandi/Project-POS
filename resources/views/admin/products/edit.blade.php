@@ -64,14 +64,14 @@
                     </div>
 
                     <div class="col-span-1 border-b pb-4 md:border-b-0 md:pb-0 border-gray-100">
-                        <label for="category_id" class="block text-[13px] font-medium text-gray-700 mb-1.5">Category</label>
-                        <select id="category_id" name="category_id" class="block w-full rounded-md border-gray-300 py-2 px-3 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 text-[14px] shadow-sm bg-white">
-                            <option value="">Select a Category</option>
-                            @foreach($categoriesList as $cat)
-                                <option value="{{ $cat->id }}" {{ old('category_id', $product->category_id) == $cat->id ? 'selected' : '' }}>{{ $cat->name }}</option>
+                        <label for="store_id" class="block text-[13px] font-medium text-gray-700 mb-1.5">Store</label>
+                        <select id="store_id" name="store_id" class="block w-full rounded-md border-gray-300 py-2 px-3 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 text-[14px] shadow-sm bg-white">
+                            <option value="">Select a Store</option>
+                            @foreach($storesList as $store)
+                                <option value="{{ $store->id }}" {{ old('store_id', $product->store_id) == $store->id ? 'selected' : '' }}>{{ $store->name }}</option>
                             @endforeach
                         </select>
-                        @error('category_id') <p class="text-red-500 text-xs mt-1.5 font-medium">{{ $message }}</p> @enderror
+                        @error('store_id') <p class="text-red-500 text-xs mt-1.5 font-medium">{{ $message }}</p> @enderror
                     </div>
 
                     <div class="col-span-1 border-b pb-4 md:border-b-0 md:pb-0 border-gray-100">

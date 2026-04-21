@@ -7,18 +7,20 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class Category extends Model
+class Store extends Model
 {
     use HasFactory, SoftDeletes;
 
     protected $fillable = [
         'name',
         'code',
+        'store_category',
+        'address',
         'is_active',
     ];
 
     /**
-     * Get the products for the category.
+     * Get the products for the store.
      */
     public function products(): HasMany
     {

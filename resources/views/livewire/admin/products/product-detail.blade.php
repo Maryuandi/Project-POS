@@ -37,7 +37,7 @@
                 <div class="flex flex-wrap items-center gap-2 lg:gap-3 mb-3">
                     <span
                         class="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-semibold bg-gray-100 text-gray-700 border border-gray-200">
-                        {{ $product->category->name ?? 'Uncategorized' }}
+                        {{ $product->store->name ?? 'Unassigned Store' }}
                     </span>
                     <span
                         class="text-xs font-mono font-bold text-gray-500 bg-gray-50 px-2 py-0.5 rounded border border-gray-100">SKU:

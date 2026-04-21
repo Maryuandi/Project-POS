@@ -52,10 +52,10 @@
 
                     <!-- Filter Category -->
                     <div class="relative min-w-[140px]">
-                        <select name="category" onchange="this.form.submit()" class="appearance-none block w-full px-3 py-1.5 border border-gray-300 bg-white rounded-md text-[13px] font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-colors shadow-sm pr-8">
-                            <option value="">All Categories</option>
-                            @foreach($categoriesList as $cat)
-                                <option value="{{ $cat->id }}" {{ request('category') == $cat->id ? 'selected' : '' }}>{{ $cat->name }}</option>
+                        <select name="store" onchange="this.form.submit()" class="appearance-none block w-full px-3 py-1.5 border border-gray-300 bg-white rounded-md text-[13px] font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-colors shadow-sm pr-8">
+                            <option value="">All Stores</option>
+                            @foreach($storesList as $store)
+                                <option value="{{ $store->id }}" {{ request('store') == $store->id ? 'selected' : '' }}>{{ $store->name }}</option>
                             @endforeach
                         </select>
                         <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-400">
@@ -128,7 +128,7 @@
                                 </td>
                                 <td class="w-px whitespace-nowrap px-3 py-2.5 border-r border-gray-200">
                                     <span class="inline-flex items-center px-2 py-1 rounded text-[11px] font-medium bg-gray-100 text-gray-700 border border-gray-200/50 shadow-sm leading-none">
-                                        {{ $product->category->name ?? '-' }}
+                                        {{ $product->store->name ?? '-' }}
                                     </span>
                                 </td>
                                 <td class="w-px whitespace-nowrap px-3 py-2.5 border-r border-gray-200">
@@ -223,4 +223,3 @@
 
     </div>
 @endsection
-

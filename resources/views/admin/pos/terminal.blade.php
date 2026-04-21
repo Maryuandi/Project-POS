@@ -139,7 +139,7 @@
                                         class="text-[14px] font-bold text-gray-900 leading-snug line-clamp-2 mb-1.5 group-hover:text-blue-700 transition-colors">
                                         {{ $product->name }}
                                     </h3>
-                                    <p class="text-[12px] text-gray-500 font-medium">{{ $product->category->name ?? '-' }} &middot;
+                                    <p class="text-[12px] text-gray-500 font-medium">{{ $product->store->name ?? '-' }} &middot;
                                         {{ $product->code }}
                                     </p>
                                 </div>
