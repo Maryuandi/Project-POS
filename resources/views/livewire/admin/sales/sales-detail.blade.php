@@ -149,6 +149,18 @@
                     <h5 class="text-[10px] font-medium text-gray-400 uppercase tracking-wider mb-1">Payment Method</h5>
                     <p class="text-sm font-semibold text-gray-900 capitalize">{{ $sale->payment_method ?? 'Cash' }}</p>
                 </div>
+                <div>
+                    <h5 class="text-[10px] font-medium text-gray-400 uppercase tracking-wider mb-1">Store</h5>
+                    <p class="text-sm font-semibold text-gray-900">
+                        {{ $sale->store?->name ?? '-' }}
+                    </p>
+                </div>
+                <div>
+                    <h5 class="text-[10px] font-medium text-gray-400 uppercase tracking-wider mb-1">Store Info</h5>
+                    <p class="text-sm font-semibold text-gray-900">
+                        {{ $sale->store?->code ?? '-' }}{{ $sale->store ? ' · ' . $sale->store->store_category : '' }}
+                    </p>
+                </div>
             </div>
 
             {{-- Items Table --}}
@@ -428,6 +440,9 @@
         $invoiceNo = $sale->invoice_no ?? '#' . str_pad($sale->id, 6, '0', STR_PAD_LEFT);
         $dateTime = $sale->sold_at ? $sale->sold_at->format('d/m/Y H:i') : $sale->created_at->format('d/m/Y H:i');
         $cashier = $sale->cashier ? $sale->cashier->name : 'System';
+        $storeName = $sale->store?->name ?? '-';
+        $storeCode = $sale->store?->code ?? '-';
+        $storeCategory = $sale->store?->store_category ?? '-';
         $paymentMethod = ucfirst($sale->payment_method ?? 'Cash');
         $totalAmount = number_format($sale->total_amount, 0, ',', '.');
         $amountReceived = isset($sale->amount_received) && $sale->amount_received > 0 ? number_format($sale->amount_received, 0, ',', '.') : null;
@@ -444,6 +459,8 @@
             'Invoice: *' . $invoiceNo . '*',
             'Tanggal: ' . $dateTime,
             'Kasir: ' . $cashier,
+            'Store: ' . $storeName,
+            'Store Info: ' . $storeCode . ' / ' . $storeCategory,
             'Pembayaran: ' . $paymentMethod,
             '',
             '--------------------------------',

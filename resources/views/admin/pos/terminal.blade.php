@@ -1,7 +1,7 @@
 @extends('layouts.admin')
 
 @section('content')
-    <div x-data="posSystem()" class="animate-in fade-in duration-300 relative w-full pb-8 flex flex-col lg:flex-row gap-6">
+    <div x-data="posSystem(@js($selectedStore ? ['id' => $selectedStore->id, 'name' => $selectedStore->name, 'code' => $selectedStore->code, 'store_category' => $selectedStore->store_category] : null))" class="animate-in fade-in duration-300 relative w-full pb-8 flex flex-col lg:flex-row gap-6">
 
         <!-- Left Column: Products -->
         <div class="flex-1">
@@ -63,45 +63,80 @@
                 </div>
             @endif
 
-            <!-- Toolbar Section (Search) -->
-            <form action="{{ route('admin.pos.terminal') }}" method="GET" class="mb-6">
-                <div class="relative w-full">
-                    <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                        <svg class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                        </svg>
+            @if(!$selectedStore)
+                <div class="mb-6">
+                    <h2 class="text-sm font-bold text-gray-800 mb-3">Pilih Store Terlebih Dahulu</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+                        @forelse($stores as $store)
+                            <a href="{{ route('admin.pos.terminal', ['store' => $store->id]) }}"
+                                class="group bg-white border border-gray-200 rounded-xl p-4 shadow-sm hover:border-blue-300 hover:shadow-md transition-all">
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <p class="text-[11px] text-gray-500 font-semibold">{{ $store->code }}</p>
+                                        <h3 class="text-[15px] font-bold text-gray-900 group-hover:text-blue-700 transition-colors">{{ $store->name }}</h3>
+                                        <p class="text-[12px] text-gray-500 mt-1">Kategori: {{ $store->store_category }}</p>
+                                    </div>
+                                    <svg class="w-5 h-5 text-gray-300 group-hover:text-blue-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                                    </svg>
+                                </div>
+                            </a>
+                        @empty
+                            <div class="md:col-span-2 xl:col-span-3 bg-white border border-gray-200 rounded-lg p-10 text-center shadow-sm">
+                                <svg class="mx-auto h-8 w-8 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7h18M5 7v10a2 2 0 002 2h10a2 2 0 002-2V7M9 7V5a3 3 0 016 0v2"></path>
+                                </svg>
+                                <h3 class="mt-2 text-sm font-medium text-gray-900">Tidak ada store aktif</h3>
+                                <p class="mt-1 text-xs text-gray-500">Aktifkan store terlebih dahulu sebelum membuat transaksi POS.</p>
+                            </div>
+                        @endforelse
                     </div>
-                    <input name="search" type="text" value="{{ request('search') }}" autofocus onchange="this.form.submit()"
-                        class="block w-full pl-11 pr-4 py-3 border border-gray-200 rounded-xl text-[14px] font-medium bg-gray-50 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 focus:bg-white transition-all shadow-sm"
-                        placeholder="Search products by name or code...">
-                    @if(request('search'))
-                        <a href="{{ route('admin.pos.terminal') }}"
-                            class="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 hover:text-gray-600 transition-colors">
-                            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12">
-                                </path>
-                            </svg>
-                        </a>
-                    @endif
-                </div>
-            </form>
-
-            <!-- Products Grid -->
-            @if($products->isEmpty())
-                <div class="bg-white border border-gray-200 rounded-lg p-10 text-center shadow-sm">
-                    <svg class="mx-auto h-8 w-8 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
-                    </svg>
-                    <h3 class="mt-2 text-sm font-medium text-gray-900">No products found</h3>
-                    <p class="mt-1 text-xs text-gray-500">Try adjusting your search or filter.</p>
                 </div>
             @else
-                <div class="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4">
-                    @foreach($products as $product)
-                        <div @click="addToCart({{ json_encode($product) }})"
-                            class="bg-white border text-left border-gray-100/80 rounded-2xl overflow-hidden shadow-sm hover:border-blue-200 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 cursor-pointer group active:scale-[0.98] select-none flex flex-col h-full ring-1 ring-slate-900/5">
+                <!-- Toolbar Section (Search) -->
+                <form action="{{ route('admin.pos.terminal') }}" method="GET" class="mb-6">
+                    <input type="hidden" name="store" value="{{ $selectedStore->id }}">
+                    <div class="flex items-center gap-3">
+                        <div class="relative w-full">
+                            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                <svg class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                </svg>
+                            </div>
+                            <input name="search" type="text" value="{{ request('search') }}" autofocus onchange="this.form.submit()"
+                                class="block w-full pl-11 pr-4 py-3 border border-gray-200 rounded-xl text-[14px] font-medium bg-gray-50 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 focus:bg-white transition-all shadow-sm"
+                                placeholder="Search products by name or code...">
+                            @if(request('search'))
+                                <a href="{{ route('admin.pos.terminal', ['store' => $selectedStore->id]) }}"
+                                    class="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 hover:text-gray-600 transition-colors">
+                                    <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                    </svg>
+                                </a>
+                            @endif
+                        </div>
+                        <a href="{{ route('admin.pos.terminal') }}"
+                            class="inline-flex items-center justify-center px-4 py-3 text-sm font-semibold text-gray-700 bg-white border border-gray-300 rounded-xl shadow-sm hover:bg-gray-50 transition-colors whitespace-nowrap">
+                            Ganti Store
+                        </a>
+                    </div>
+                </form>
+
+                <!-- Products Grid -->
+                @if($products->isEmpty())
+                    <div class="bg-white border border-gray-200 rounded-lg p-10 text-center shadow-sm">
+                        <svg class="mx-auto h-8 w-8 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
+                        </svg>
+                        <h3 class="mt-2 text-sm font-medium text-gray-900">No products found</h3>
+                        <p class="mt-1 text-xs text-gray-500">Try adjusting your search or filter.</p>
+                    </div>
+                @else
+                    <div class="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4">
+                        @foreach($products as $product)
+                            <div @click="addToCart({{ json_encode($product) }})"
+                                class="bg-white border text-left border-gray-100/80 rounded-2xl overflow-hidden shadow-sm hover:border-blue-200 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 cursor-pointer group active:scale-[0.98] select-none flex flex-col h-full ring-1 ring-slate-900/5">
 
                             <!-- Image Area -->
                             <div
@@ -145,16 +180,39 @@
                                     <span class="text-[12px] font-bold text-amber-700 tracking-tight">Harga jual diatur di keranjang</span>
                                 </div>
                             </div>
-                        </div>
-                    @endforeach
-                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                @endif
             @endif
         </div>
 
         <!-- Right Column: Cart Sidebar -->
         <div class="w-full lg:w-[350px] xl:w-[400px] shrink-0">
-            <div class="bg-white border border-gray-200 rounded-xl shadow-sm lg:sticky lg:top-4 flex flex-col"
-                style="height: calc(100vh - 8rem);">
+            <div class="lg:sticky lg:top-4 flex flex-col gap-4">
+
+                @if($selectedStore)
+                    <div class="bg-white border border-gray-200 rounded-xl shadow-sm p-4">
+                        <p class="text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-3">Selected Store</p>
+                        <div class="space-y-2">
+                            <div class="flex justify-between text-[12px]">
+                                <span class="text-gray-500">ID</span>
+                                <span class="font-semibold text-gray-900">{{ $selectedStore->code }}</span>
+                            </div>
+                            <div class="flex justify-between text-[12px]">
+                                <span class="text-gray-500">Store Name</span>
+                                <span class="font-semibold text-gray-900 text-right">{{ $selectedStore->name }}</span>
+                            </div>
+                            <div class="flex justify-between text-[12px]">
+                                <span class="text-gray-500">Store Category</span>
+                                <span class="font-semibold text-gray-900">{{ $selectedStore->store_category }}</span>
+                            </div>
+                        </div>
+                    </div>
+                @endif
+
+                <div class="bg-white border border-gray-200 rounded-xl shadow-sm flex flex-col"
+                    style="{{ $selectedStore ? 'height: calc(100vh - 17rem);' : 'height: calc(100vh - 8rem);' }}">
 
                 <!-- Cart Header -->
                 <div
@@ -205,6 +263,12 @@
                                 <span class="text-[13px] font-bold text-gray-900 tracking-tight"
                                     x-text="'Rp ' + formatNumber((Number(item.price || 0)) * item.qty)"></span>
                             </div>
+                            <div class="flex justify-between items-center text-[11px]">
+                                <span class="text-gray-500">Potensi Profit</span>
+                                <span :class="((Number(item.price || 0) - Number(item.cost || 0)) * item.qty) >= 0 ? 'text-emerald-700 font-semibold' : 'text-red-600 font-semibold'"
+                                    x-text="'Rp ' + formatNumber(Math.abs((Number(item.price || 0) - Number(item.cost || 0)) * item.qty)) + (((Number(item.price || 0) - Number(item.cost || 0)) * item.qty) >= 0 ? '' : ' (Rugi)')">
+                                </span>
+                            </div>
                             <div
                                 class="flex items-center mt-1 border border-gray-200 rounded text-[12px] bg-white w-max overflow-hidden shadow-sm">
                                 <button @click="decreaseQty(index)" class="px-2.5 py-1 text-gray-600 hover:bg-gray-100"><svg
@@ -230,8 +294,13 @@
                     class="border-t border-gray-100 bg-white p-4 rounded-b-xl shrink-0 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.02)]">
                     <div class="space-y-1.5 mb-4">
                         <div class="flex justify-between items-center text-[13px] text-gray-500">
-                            <span>Subtotal</span>
-                            <span class="font-medium text-gray-900" x-text="'Rp ' + formatNumber(total)"></span>
+                            <span>Total Capital</span>
+                            <span class="font-medium text-gray-900" x-text="'Rp ' + formatNumber(totalCapital)"></span>
+                        </div>
+                        <div class="flex justify-between items-center text-[13px] text-gray-500">
+                            <span>Total Profit</span>
+                            <span :class="totalProfit >= 0 ? 'font-medium text-emerald-700' : 'font-medium text-red-600'"
+                                x-text="'Rp ' + formatNumber(Math.abs(totalProfit)) + (totalProfit >= 0 ? '' : ' (Rugi)')"></span>
                         </div>
                         <div class="flex justify-between items-end pt-1">
                             <span class="text-[14px] font-bold text-gray-900">Total</span>
@@ -448,9 +517,10 @@
     </div>
 
     <script>
-        function posSystem() {
+        function posSystem(initialStore) {
             return {
                 cart: [],
+                selectedStore: initialStore,
                 search: '',
                 showCheckout: false,
                 paymentMethod: 'cash',
@@ -462,6 +532,7 @@
                 dueDate: '',
 
                 addToCart(product) {
+                    if (!this.selectedStore) return;
                     if (product.stock <= 0) return;
                     const index = this.cart.findIndex(i => i.id === product.id);
                     if (index !== -1) {
@@ -469,7 +540,7 @@
                             this.cart[index].qty++;
                         }
                     } else {
-                        this.cart.push({ ...product, price: Number(product.price ?? 0), qty: 1 });
+                        this.cart.push({ ...product, cost: Number(product.cost ?? 0), price: Number(product.price ?? 0), qty: 1 });
                     }
                     this.calculateTotal();
                 },
@@ -504,7 +575,16 @@
                     this.total = this.cart.reduce((sum, item) => sum + ((Number(item.price || 0)) * item.qty), 0);
                 },
 
+                get totalCapital() {
+                    return this.cart.reduce((sum, item) => sum + ((Number(item.cost || 0)) * item.qty), 0);
+                },
+
+                get totalProfit() {
+                    return this.total - this.totalCapital;
+                },
+
                 openCheckout() {
+                    if (!this.selectedStore || this.total <= 0) return;
                     this.amountReceived = this.total;
                     this.downPayment = 0;
                     this.dueDate = '';
@@ -522,6 +602,7 @@
 
                     try {
                         let payload = {
+                            store_id: this.selectedStore ? this.selectedStore.id : null,
                             cart: this.cart,
                             payment_method: this.paymentMethod,
                             amount_received: this.amountReceived,

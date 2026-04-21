@@ -20,10 +20,10 @@ class Store extends Model
     ];
 
     /**
-     * Get the products for the store.
+     * Get the sales for the store.
      */
-    public function products(): HasMany
+    public function sales(): HasMany
     {
-        return $this->hasMany(Product::class);
+        return $this->hasMany(Sale::class);
     }
 }

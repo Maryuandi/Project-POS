@@ -42,7 +42,7 @@ class SalesHistory extends Component
 
     public function render()
     {
-        $query = Sale::with('cashier');
+        $query = Sale::with(['cashier', 'store']);
 
         $search = $this->search;
         $statusFilter = $this->filterStatus;
@@ -56,6 +56,10 @@ class SalesHistory extends Component
                 $q->whereRaw('LOWER(invoice_no) LIKE ?', ['%' . $searchTerm . '%'])
                   ->orWhereHas('cashier', function ($q2) use ($searchTerm) {
                       $q2->whereRaw('LOWER(name) LIKE ?', ['%' . $searchTerm . '%']);
+                  })
+                  ->orWhereHas('store', function ($q3) use ($searchTerm) {
+                      $q3->whereRaw('LOWER(name) LIKE ?', ['%' . $searchTerm . '%'])
+                        ->orWhereRaw('LOWER(code) LIKE ?', ['%' . $searchTerm . '%']);
                   });
             });
         }

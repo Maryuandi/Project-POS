@@ -14,6 +14,7 @@ class Sale extends Model
     protected $fillable = [
         'invoice_no',
         'cashier_id',
+        'store_id',
         'sold_at',
         'total_amount',
         'amount_paid',
@@ -43,6 +44,14 @@ class Sale extends Model
     public function cashier(): BelongsTo
     {
         return $this->belongsTo(User::class, 'cashier_id');
+    }
+
+    /**
+     * Get the store where the sale was created.
+     */
+    public function store(): BelongsTo
+    {
+        return $this->belongsTo(Store::class);
     }
 
     /**

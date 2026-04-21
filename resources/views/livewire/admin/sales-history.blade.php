@@ -164,15 +164,15 @@
             </div>
             <input type="text" name="search" value="{{ $search }}"
                 class="block w-full pl-9 pr-3 py-2 border border-gray-300 rounded-lg text-sm bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-colors shadow-sm"
-                placeholder="Cari no invoice atau nama kasir...">
+                placeholder="Cari invoice, kasir, atau store...">
         </div>
 
         <!-- Right: Filters dropdowns -->
         <!-- Right: Filters dropdowns -->
-        <div x-data="{ 
-            dateType: '{{ $filterDate ?? 'semua' }}', 
+        <div x-data="{
+            dateType: '{{ $filterDate ?? 'semua' }}',
             previousDateType: '{{ $filterDate ?? 'semua' }}',
-            showCustomModal: false 
+            showCustomModal: false
         }" class="flex flex-wrap items-center gap-2 w-full xl:w-auto">
 
             <!-- Filter Date Type -->
@@ -327,6 +327,19 @@
                             </div>
                         </th>
 
+                        <!-- Store -->
+                        <th scope="col"
+                            class="px-3 py-2 text-xs font-medium text-gray-500 border-r border-gray-200 sm:w-auto min-w-[140px]">
+                            <div class="flex items-center space-x-1.5">
+                                <svg class="w-3.5 h-3.5 text-gray-400" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M3 7h18M5 7v10a2 2 0 002 2h10a2 2 0 002-2V7M9 7V5a3 3 0 016 0v2"></path>
+                                </svg>
+                                <span>Store</span>
+                            </div>
+                        </th>
+
                         <!-- Total -->
                         <th scope="col"
                             class="w-px whitespace-nowrap px-3 py-2 text-xs font-medium text-gray-500 border-r border-gray-200">
@@ -430,6 +443,18 @@
                                 </div>
                             </td>
 
+                            <!-- Store -->
+                            <td class="px-3 py-2.5 border-r border-gray-200">
+                                <div class="flex flex-col">
+                                    <span class="text-[13px] font-semibold text-gray-900 truncate block max-w-[180px]">
+                                        {{ $sale->store->name ?? '-' }}
+                                    </span>
+                                    @if($sale->store)
+                                        <span class="text-[11px] text-gray-500">{{ $sale->store->code }} · {{ $sale->store->store_category }}</span>
+                                    @endif
+                                </div>
+                            </td>
+
                             <!-- Total -->
                             <td class="w-px whitespace-nowrap px-3 py-2.5 border-r border-gray-200">
                                 <div class="flex items-center gap-1.5 font-mono">
@@ -486,7 +511,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="9" class="px-3 py-10 text-center">
+                            <td colspan="10" class="px-3 py-10 text-center">
                                 <svg class="mx-auto h-8 w-8 text-gray-300" fill="none" viewBox="0 0 24 24"
                                     stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
