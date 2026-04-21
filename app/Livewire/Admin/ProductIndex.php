@@ -3,7 +3,6 @@
 namespace App\Livewire\Admin;
 
 use App\Models\Product;
-use App\Models\Store;
 use Illuminate\Support\Facades\Storage;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Url;
@@ -18,20 +17,12 @@ class ProductIndex extends Component
     public $search = '';
 
     #[Url]
-    public $filterStore = '';
-
-    #[Url]
     public $filterStatus = 'all';
 
     public $confirmingProductDeletion = false;
     public $productToDelete = null;
 
     public function updatingSearch()
-    {
-        $this->resetPage();
-    }
-
-    public function updatingFilterStore()
     {
         $this->resetPage();
     }
@@ -72,18 +63,12 @@ class ProductIndex extends Component
     #[Layout('layouts.admin')]
     public function render()
     {
-        $products = Product::with('store')
+        $products = Product::query()
             ->when($this->search, function ($query) {
                 $query->where(function ($q) {
                     $q->where('name', 'like', '%' . $this->search . '%')
-                        ->orWhere('code', 'like', '%' . $this->search . '%')
-                        ->orWhereHas('store', function ($qs) {
-                            $qs->where('name', 'like', '%' . $this->search . '%');
-                        });
+                        ->orWhere('code', 'like', '%' . $this->search . '%');
                 });
-            })
-            ->when($this->filterStore, function ($query) {
-                $query->where('store_id', $this->filterStore);
             })
             ->when($this->filterStatus === 'available', function ($query) {
                 $query->where('stock', '>', 10);
@@ -99,7 +84,6 @@ class ProductIndex extends Component
 
         return view('livewire.admin.product-index', [
             'products' => $products,
-            'storesList' => Store::orderBy('name')->get(),
             'unpaidInstallments' => \App\Models\Sale::with('cashier')->where('status', 'installment')->orderByDesc('created_at')->get(),
         ]);
     }

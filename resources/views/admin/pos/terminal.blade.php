@@ -139,13 +139,10 @@
                                         class="text-[14px] font-bold text-gray-900 leading-snug line-clamp-2 mb-1.5 group-hover:text-blue-700 transition-colors">
                                         {{ $product->name }}
                                     </h3>
-                                    <p class="text-[12px] text-gray-500 font-medium">{{ $product->store->name ?? '-' }} &middot;
-                                        {{ $product->code }}
-                                    </p>
+                                    <p class="text-[12px] text-gray-500 font-medium">{{ $product->code }}</p>
                                 </div>
                                 <div class="mt-3">
-                                    <span class="text-[15px] font-black text-blue-700 tracking-tight">Rp
-                                        {{ number_format($product->price, 0, ',', '.') }}</span>
+                                    <span class="text-[12px] font-bold text-amber-700 tracking-tight">Harga jual diatur di keranjang</span>
                                 </div>
                             </div>
                         </div>
@@ -199,10 +196,14 @@
                                 </button>
                             </div>
                             <div class="flex justify-between items-end">
-                                <div class="text-[11px] font-medium text-gray-500"
-                                    x-text="'Rp ' + formatNumber(item.price)"></div>
+                                <div>
+                                    <label class="block text-[10px] font-semibold text-gray-500 mb-1">Harga Jual</label>
+                                    <input type="number" min="0" step="1" x-model.number="item.price" @input="calculateTotal()"
+                                        class="w-28 rounded-md border border-gray-300 bg-white px-2 py-1 text-[12px] font-semibold text-gray-900 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                                        placeholder="0">
+                                </div>
                                 <span class="text-[13px] font-bold text-gray-900 tracking-tight"
-                                    x-text="'Rp ' + formatNumber(item.price * item.qty)"></span>
+                                    x-text="'Rp ' + formatNumber((Number(item.price || 0)) * item.qty)"></span>
                             </div>
                             <div
                                 class="flex items-center mt-1 border border-gray-200 rounded text-[12px] bg-white w-max overflow-hidden shadow-sm">
@@ -238,8 +239,8 @@
                                 x-text="'Rp ' + formatNumber(total)"></span>
                         </div>
                     </div>
-                    <button @click="openCheckout()" :disabled="cart.length === 0"
-                        :class="cart.length === 0 ? 'bg-gray-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700'"
+                    <button @click="openCheckout()" :disabled="cart.length === 0 || total <= 0"
+                        :class="(cart.length === 0 || total <= 0) ? 'bg-gray-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700'"
                         class="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-lg text-sm font-semibold text-white transition-all shadow-sm">
                         <span>Charge</span>
                         <span x-show="cart.length > 0" class="opacity-50">•</span>
@@ -468,7 +469,7 @@
                             this.cart[index].qty++;
                         }
                     } else {
-                        this.cart.push({ ...product, qty: 1 });
+                        this.cart.push({ ...product, price: Number(product.price ?? 0), qty: 1 });
                     }
                     this.calculateTotal();
                 },
@@ -500,7 +501,7 @@
                 },
 
                 calculateTotal() {
-                    this.total = this.cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+                    this.total = this.cart.reduce((sum, item) => sum + ((Number(item.price || 0)) * item.qty), 0);
                 },
 
                 openCheckout() {

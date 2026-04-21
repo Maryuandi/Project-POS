@@ -36,10 +36,6 @@
             <div class="flex-1 flex flex-col justify-center mb-4">
                 <div class="flex flex-wrap items-center gap-2 lg:gap-3 mb-3">
                     <span
-                        class="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-semibold bg-gray-100 text-gray-700 border border-gray-200">
-                        {{ $product->store->name ?? 'Unassigned Store' }}
-                    </span>
-                    <span
                         class="text-xs font-mono font-bold text-gray-500 bg-gray-50 px-2 py-0.5 rounded border border-gray-100">SKU:
                         {{ $product->code }}</span>
                     @if($product->is_active)
@@ -73,7 +69,7 @@
                 @endif
 
                 <!-- Quick Stats -->
-                <div class="mt-6 grid grid-cols-2 md:grid-cols-3 gap-4 lg:gap-6 pt-6 border-t border-gray-100">
+                <div class="mt-6 grid grid-cols-2 gap-4 lg:gap-6 pt-6 border-t border-gray-100">
                     <div>
                         <p class="text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-1">Stok Saat Ini</p>
                         <div class="flex items-center gap-2">
@@ -94,12 +90,6 @@
                         <p class="text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-1">Harga Modal</p>
                         <p class="text-lg sm:text-xl font-bold text-gray-800 tracking-tight">Rp
                             {{ number_format($product->cost, 0, ',', '.') }}
-                        </p>
-                    </div>
-                    <div>
-                        <p class="text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-1">Harga Jual</p>
-                        <p class="text-lg sm:text-xl font-black text-emerald-600 tracking-tight">Rp
-                            {{ number_format($product->price, 0, ',', '.') }}
                         </p>
                     </div>
                 </div>

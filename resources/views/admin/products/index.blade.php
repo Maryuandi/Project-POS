@@ -35,7 +35,7 @@
                             <svg class="h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
                         </div>
                         <input name="search" type="text" value="{{ request('search') }}"
-                            class="block w-full pl-9 pr-3 py-1.5 border border-gray-300 rounded-md text-[13px] bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-colors shadow-sm" 
+                            class="block w-full pl-9 pr-3 py-1.5 border border-gray-300 rounded-md text-[13px] bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-colors shadow-sm"
                             placeholder="Product name or SKU code..." onchange="this.form.submit()">
                     </div>
                     <button type="submit" class="px-3 py-1.5 bg-blue-600 text-white rounded-md text-sm font-semibold hover:bg-blue-700 transition-colors shadow-sm">Search</button>
@@ -50,23 +50,10 @@
                         <option value="archived" {{ request('status') == 'archived' ? 'selected' : '' }}>Archived</option>
                     </select>
 
-                    <!-- Filter Category -->
-                    <div class="relative min-w-[140px]">
-                        <select name="store" onchange="this.form.submit()" class="appearance-none block w-full px-3 py-1.5 border border-gray-300 bg-white rounded-md text-[13px] font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-colors shadow-sm pr-8">
-                            <option value="">All Stores</option>
-                            @foreach($storesList as $store)
-                                <option value="{{ $store->id }}" {{ request('store') == $store->id ? 'selected' : '' }}>{{ $store->name }}</option>
-                            @endforeach
-                        </select>
-                        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-400">
-                            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-                        </div>
-                    </div>
-
                     <div class="h-6 w-px bg-gray-200 mx-1 hidden sm:block"></div>
 
                     <!-- Reset Button -->
-                    <a href="{{ route('admin.products.index') }}" 
+                    <a href="{{ route('admin.products.index') }}"
                         class="p-1.5 border border-gray-300 bg-white rounded-md text-gray-500 hover:bg-gray-50 hover:text-gray-700 transition-colors shadow-sm" title="Clear Filters">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                     </a>
@@ -99,11 +86,10 @@
                                 <input type="checkbox" class="w-3.5 h-3.5 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
                             </th>
                             <th scope="col" class="px-3 py-2 text-xs font-medium text-gray-500 border-r border-gray-200 sm:w-auto min-w-[140px]">Produk</th>
-                            <th scope="col" class="w-px whitespace-nowrap px-3 py-2 text-xs font-medium text-gray-500 border-r border-gray-200">Category</th>
+                            <th scope="col" class="w-px whitespace-nowrap px-3 py-2 text-xs font-medium text-gray-500 border-r border-gray-200">SKU</th>
                             <th scope="col" class="w-px whitespace-nowrap px-3 py-2 text-xs font-medium text-gray-500 border-r border-gray-200">Status</th>
                             <th scope="col" class="w-px whitespace-nowrap px-3 py-2 text-xs font-medium text-gray-500 border-r border-gray-200">Stok</th>
                             <th scope="col" class="w-px whitespace-nowrap px-3 py-2 text-xs font-medium text-gray-500 border-r border-gray-200">Harga Beli</th>
-                            <th scope="col" class="w-px whitespace-nowrap px-3 py-2 text-xs font-medium text-gray-500 border-r border-gray-200">Harga Jual</th>
                             <th scope="col" class="w-px whitespace-nowrap px-3 py-2 text-xs font-medium text-gray-500 border-r border-gray-200">Distributor</th>
                             <th scope="col" class="px-3 py-2 text-center w-12 text-gray-400">Actions</th>
                         </tr>
@@ -117,8 +103,8 @@
                                 <td class="px-3 py-2.5 border-r border-gray-200">
                                     <div class="flex items-center space-x-1">
                                         @if($product->image_path)
-                                            <img src="{{ Str::startsWith($product->image_path, 'http') ? $product->image_path : asset('storage/' . $product->image_path) }}" 
-                                                alt="{{ $product->name }}" 
+                                            <img src="{{ Str::startsWith($product->image_path, 'http') ? $product->image_path : asset('storage/' . $product->image_path) }}"
+                                                alt="{{ $product->name }}"
                                                 class="w-5 h-5 rounded object-cover border border-gray-100 shadow-xs shrink-0">
                                         @else
                                             <div class="w-5 h-5 rounded bg-gray-100 border border-gray-200 flex items-center justify-center text-gray-400 text-[8px] font-bold shrink-0">-</div>
@@ -128,7 +114,7 @@
                                 </td>
                                 <td class="w-px whitespace-nowrap px-3 py-2.5 border-r border-gray-200">
                                     <span class="inline-flex items-center px-2 py-1 rounded text-[11px] font-medium bg-gray-100 text-gray-700 border border-gray-200/50 shadow-sm leading-none">
-                                        {{ $product->store->name ?? '-' }}
+                                        {{ $product->code }}
                                     </span>
                                 </td>
                                 <td class="w-px whitespace-nowrap px-3 py-2.5 border-r border-gray-200">
@@ -149,10 +135,6 @@
                                     <span class="text-[10px] text-gray-400 font-sans">Rp</span>
                                     <span class="text-[13px] text-gray-700 font-medium">{{ number_format($product->cost ?? 0, 0, ',', '.') }}</span>
                                 </td>
-                                <td class="w-px whitespace-nowrap px-3 py-2.5 border-r border-gray-200 font-mono">
-                                    <span class="text-[10px] text-blue-400 font-sans">Rp</span>
-                                    <span class="text-[13px] text-blue-700 font-bold">{{ number_format($product->price ?? 0, 0, ',', '.') }}</span>
-                                </td>
                                 <td class="w-px whitespace-nowrap px-3 py-2.5 border-r border-gray-200">
                                     <span class="text-[12px] text-gray-600 font-medium inline-block max-w-[150px]">{{ $product->distributor ?? '-' }}</span>
                                 </td>
@@ -162,7 +144,7 @@
                                             class="inline-flex items-center justify-center w-7 h-7 bg-white border border-gray-200 rounded-md shadow-sm text-slate-400 hover:text-blue-600 hover:border-blue-200 hover:bg-blue-50 transition-all focus:outline-none">
                                             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
                                         </a>
-                                        <button @click="confirmingDelete = true" type="button" title="Delete" 
+                                        <button @click="confirmingDelete = true" type="button" title="Delete"
                                             class="inline-flex items-center justify-center w-7 h-7 bg-white border border-gray-200 rounded-md shadow-sm text-slate-400 hover:text-red-600 hover:border-red-200 hover:bg-red-50 transition-all focus:outline-none">
                                             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
                                         </button>
@@ -202,7 +184,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="9" class="px-3 py-10 text-center">
+                                <td colspan="8" class="px-3 py-10 text-center">
                                     <svg class="mx-auto h-8 w-8 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>
                                     <h3 class="mt-2 text-sm font-medium text-gray-900">No products found</h3>
                                     <p class="mt-1 text-xs text-gray-500">The grid is currently empty.</p>

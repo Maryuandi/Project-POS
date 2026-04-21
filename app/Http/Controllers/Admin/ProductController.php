@@ -4,29 +4,21 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Product;
-use App\Models\Store;
 use Illuminate\Http\Request;
 
 class ProductController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Product::with(['store']);
+        $query = Product::query();
 
         if ($request->filled('search')) {
             $search = $request->search;
             $query->where(function ($q) use ($search) {
                 $q->whereRaw('LOWER(name) LIKE ?', ['%' . strtolower($search) . '%'])
                     ->orWhereRaw('LOWER(code) LIKE ?', ['%' . strtolower($search) . '%'])
-                    ->orWhereRaw('LOWER(distributor) LIKE ?', ['%' . strtolower($search) . '%'])
-                    ->orWhereHas('store', function ($qs) use ($search) {
-                        $qs->whereRaw('LOWER(name) LIKE ?', ['%' . strtolower($search) . '%']);
-                    });
+                    ->orWhereRaw('LOWER(distributor) LIKE ?', ['%' . strtolower($search) . '%']);
             });
-        }
-
-        if ($request->filled('store')) {
-            $query->where('store_id', $request->store);
         }
 
         if ($request->filled('status') && $request->status !== 'all') {
@@ -38,16 +30,13 @@ class ProductController extends Controller
         }
 
         $products = $query->latest()->paginate(10)->withQueryString();
-        $storesList = Store::orderBy('name')->get();
 
-        return view('admin.products.index', compact('products', 'storesList'));
+        return view('admin.products.index', compact('products'));
     }
 
     public function create()
     {
-        $storesList = Store::where('is_active', true)->orderBy('name')->get();
-
-        return view('admin.products.create', compact('storesList'));
+        return view('admin.products.create');
     }
 
     public function store(Request $request)
@@ -55,11 +44,9 @@ class ProductController extends Controller
         $rules = [
             'name' => 'required|string|max:255',
             'code' => 'required|string|max:255|unique:products,code',
-            'store_id' => 'required|exists:stores,id',
             'distributor' => 'nullable|string',
             'stock' => 'required|integer|min:0',
             'cost' => 'required|numeric|min:0',
-            'price' => 'required|numeric|min:0',
             'is_active' => 'boolean',
             'image' => 'nullable|image|max:10240',
             'image_path' => 'nullable|string',
@@ -67,7 +54,7 @@ class ProductController extends Controller
         ];
 
         $validatedData = $request->validate($rules);
-        $validatedData['is_active'] = $request->has('is_active');
+        $validatedData['is_active'] = $request->boolean('is_active');
 
         if ($request->hasFile('image')) {
             $validatedData['image_path'] = $request->file('image')->store('products', 'public');
@@ -94,12 +81,7 @@ class ProductController extends Controller
 
     public function edit(Product $product)
     {
-        $storesList = Store::where('is_active', true)
-            ->orWhere('id', $product->store_id)
-            ->orderBy('name')
-            ->get();
-
-        return view('admin.products.edit', compact('product', 'storesList'));
+        return view('admin.products.edit', compact('product'));
     }
 
     public function update(Request $request, Product $product)
@@ -107,11 +89,9 @@ class ProductController extends Controller
         $rules = [
             'name' => 'required|string|max:255',
             'code' => 'required|string|max:255|unique:products,code,' . $product->id,
-            'store_id' => 'required|exists:stores,id',
             'distributor' => 'nullable|string',
             'stock' => 'required|integer|min:0',
             'cost' => 'required|numeric|min:0',
-            'price' => 'required|numeric|min:0',
             'is_active' => 'boolean',
             'image' => 'nullable|image|max:10240',
             'image_path' => 'nullable|string',
@@ -119,7 +99,7 @@ class ProductController extends Controller
         ];
 
         $validatedData = $request->validate($rules);
-        $validatedData['is_active'] = $request->has('is_active');
+        $validatedData['is_active'] = $request->boolean('is_active');
 
         if ($request->hasFile('image')) {
             $validatedData['image_path'] = $request->file('image')->store('products', 'public');

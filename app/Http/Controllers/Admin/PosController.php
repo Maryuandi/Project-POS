@@ -15,17 +15,14 @@ class PosController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Product::with('store')->where('is_active', true);
+        $query = Product::where('is_active', true);
 
         $search = $request->query('search');
         if ($search) {
             $query->where(function ($q) use ($search) {
                 $q->whereRaw('LOWER(name) LIKE ?', ['%' . strtolower($search) . '%'])
                     ->orWhereRaw('LOWER(code) LIKE ?', ['%' . strtolower($search) . '%'])
-                    ->orWhereRaw('LOWER(distributor) LIKE ?', ['%' . strtolower($search) . '%'])
-                    ->orWhereHas('store', function ($qc) use ($search) {
-                        $qc->whereRaw('LOWER(name) LIKE ?', ['%' . strtolower($search) . '%']);
-                    });
+                    ->orWhereRaw('LOWER(distributor) LIKE ?', ['%' . strtolower($search) . '%']);
             });
         }
 
@@ -37,7 +34,10 @@ class PosController extends Controller
     public function checkout(Request $request)
     {
         $request->validate([
-            'cart' => 'required|array',
+            'cart' => 'required|array|min:1',
+            'cart.*.id' => 'required|integer|exists:products,id',
+            'cart.*.qty' => 'required|integer|min:1',
+            'cart.*.price' => 'required|numeric|min:0.01',
             'payment_method' => 'required|string',
             'amount_received' => 'required|numeric',
             'is_installment' => 'sometimes|boolean',
@@ -57,19 +57,21 @@ class PosController extends Controller
 
         foreach ($cart as $item) {
             $product = Product::find($item['id']);
+            $qty = (int) $item['qty'];
+            $unitPrice = (float) $item['price'];
 
-            if (!$product || $product->stock < $item['qty']) {
+            if (!$product || $product->stock < $qty) {
                 session()->flash('error', 'Stok tidak mencukupi untuk ' . ($product ? $product->name : 'produk tidak ditemukan') . '.');
                 return response()->json(['message' => 'Stock insufficient'], 400);
             }
 
-            $subtotal = $product->price * $item['qty'];
+            $subtotal = $unitPrice * $qty;
             $totalAmount += $subtotal;
 
             $itemsToProcess[] = [
                 'product_id' => $product->id,
-                'quantity' => $item['qty'],
-                'unit_price' => $product->price,
+                'quantity' => $qty,
+                'unit_price' => $unitPrice,
                 'subtotal' => $subtotal,
             ];
         }
