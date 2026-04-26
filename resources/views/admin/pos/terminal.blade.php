@@ -1,10 +1,10 @@
 @extends('layouts.admin')
 
 @section('content')
-    <div x-data="posSystem(@js($selectedStore ? ['id' => $selectedStore->id, 'name' => $selectedStore->name, 'code' => $selectedStore->code, 'store_category' => $selectedStore->store_category] : null))" class="animate-in fade-in duration-300 relative w-full pb-8 flex flex-col lg:flex-row gap-6">
+    <div x-data="posSystem(@js($selectedStore ? ['id' => $selectedStore->id, 'name' => $selectedStore->name, 'code' => $selectedStore->code, 'store_category' => $selectedStore->store_category] : null))" class="animate-in fade-in duration-300 relative w-full pb-8 flex flex-col lg:flex-row lg:flex-wrap 2xl:flex-nowrap gap-6">
 
         <!-- Left Column: Products -->
-        <div class="flex-1">
+        <div class="flex-1 min-w-0 basis-0">
             <!-- Breadcrumbs Section -->
             <nav class="flex items-center space-x-1.5 text-[13px] font-medium mb-2" aria-label="Breadcrumb">
                 <span class="text-gray-400">Transactions</span>
@@ -66,30 +66,93 @@
             @if(!$selectedStore)
                 <div class="mb-6">
                     <h2 class="text-sm font-bold text-gray-800 mb-3">Pilih Store Terlebih Dahulu</h2>
-                    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-                        @forelse($stores as $store)
-                            <a href="{{ route('admin.pos.terminal', ['store' => $store->id]) }}"
-                                class="group bg-white border border-gray-200 rounded-xl p-4 shadow-sm hover:border-blue-300 hover:shadow-md transition-all">
-                                <div class="flex items-center justify-between">
-                                    <div>
-                                        <p class="text-[11px] text-gray-500 font-semibold">{{ $store->code }}</p>
-                                        <h3 class="text-[15px] font-bold text-gray-900 group-hover:text-blue-700 transition-colors">{{ $store->name }}</h3>
-                                        <p class="text-[12px] text-gray-500 mt-1">Kategori: {{ $store->store_category }}</p>
-                                    </div>
-                                    <svg class="w-5 h-5 text-gray-300 group-hover:text-blue-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                    <form action="{{ route('admin.pos.terminal') }}" method="GET" class="mb-4 flex flex-col lg:flex-row gap-3">
+                        <div class="relative flex-1">
+                            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                <svg class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                </svg>
+                            </div>
+                            <input name="store_search" type="text" value="{{ $storeSearch }}"
+                                class="block w-full pl-11 pr-4 py-3 border border-gray-200 rounded-xl text-[14px] font-medium bg-gray-50 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 focus:bg-white transition-all shadow-sm"
+                                placeholder="Cari store berdasarkan nama atau ID...">
+                        </div>
+                        <div class="flex flex-col sm:flex-row gap-3 lg:w-auto">
+                            <div class="relative sm:min-w-[190px]">
+                                <select name="store_category" onchange="this.form.submit()"
+                                    class="appearance-none block w-full px-4 py-3 border border-gray-200 bg-white rounded-xl text-[14px] font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-colors shadow-sm pr-10">
+                                    <option value="">Semua Kategori Store</option>
+                                    @foreach($storeCategories as $category)
+                                        <option value="{{ $category }}" {{ $storeCategory === $category ? 'selected' : '' }}>{{ $category }}</option>
+                                    @endforeach
+                                </select>
+                                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-400">
+                                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
                                     </svg>
                                 </div>
-                            </a>
-                        @empty
-                            <div class="md:col-span-2 xl:col-span-3 bg-white border border-gray-200 rounded-lg p-10 text-center shadow-sm">
-                                <svg class="mx-auto h-8 w-8 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7h18M5 7v10a2 2 0 002 2h10a2 2 0 002-2V7M9 7V5a3 3 0 016 0v2"></path>
-                                </svg>
-                                <h3 class="mt-2 text-sm font-medium text-gray-900">Tidak ada store aktif</h3>
-                                <p class="mt-1 text-xs text-gray-500">Aktifkan store terlebih dahulu sebelum membuat transaksi POS.</p>
                             </div>
-                        @endforelse
+                            <button type="submit"
+                                class="inline-flex items-center justify-center px-4 py-3 text-sm font-semibold text-white bg-blue-600 rounded-xl shadow-sm hover:bg-blue-700 transition-colors whitespace-nowrap">
+                                Cari Store
+                            </button>
+                            @if($storeSearch !== '' || $storeCategory !== '')
+                                <a href="{{ route('admin.pos.terminal') }}"
+                                    class="inline-flex items-center justify-center px-4 py-3 text-sm font-semibold text-gray-700 bg-white border border-gray-300 rounded-xl shadow-sm hover:bg-gray-50 transition-colors whitespace-nowrap">
+                                    Reset
+                                </a>
+                            @endif
+                        </div>
+                    </form>
+
+                    <div class="bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm">
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left border-collapse">
+                                <thead>
+                                    <tr class="bg-gray-50 border-b border-gray-200">
+                                        <th class="px-4 py-3 text-[11px] font-bold text-gray-500 uppercase tracking-wider">Store ID</th>
+                                        <th class="px-4 py-3 text-[11px] font-bold text-gray-500 uppercase tracking-wider">Store Name</th>
+                                        <th class="px-4 py-3 text-[11px] font-bold text-gray-500 uppercase tracking-wider">Category</th>
+                                        <th class="px-4 py-3 text-[11px] font-bold text-gray-500 uppercase tracking-wider text-right">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-gray-200 bg-white">
+                                    @forelse($stores as $store)
+                                        <tr class="hover:bg-gray-50 transition-colors">
+                                            <td class="px-4 py-3">
+                                                <span class="inline-flex items-center px-2.5 py-1 rounded-md text-[11px] font-mono font-semibold text-gray-600 bg-gray-100 border border-gray-200">
+                                                    {{ $store->code }}
+                                                </span>
+                                            </td>
+                                            <td class="px-4 py-3">
+                                                <span class="text-[14px] font-semibold text-gray-900">{{ $store->name }}</span>
+                                            </td>
+                                            <td class="px-4 py-3">
+                                                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-semibold bg-blue-50 text-blue-700 border border-blue-100">
+                                                    {{ $store->store_category }}
+                                                </span>
+                                            </td>
+                                            <td class="px-4 py-3 text-right">
+                                                <a href="{{ route('admin.pos.terminal', ['store' => $store->id]) }}"
+                                                    class="inline-flex items-center justify-center px-3 py-2 text-[13px] font-semibold text-blue-700 bg-blue-50 border border-blue-100 rounded-lg hover:bg-blue-100 transition-colors">
+                                                    Pilih Store
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    @empty
+                                        <tr>
+                                            <td colspan="4" class="px-4 py-10 text-center">
+                                                <svg class="mx-auto h-8 w-8 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7h18M5 7v10a2 2 0 002 2h10a2 2 0 002-2V7M9 7V5a3 3 0 016 0v2"></path>
+                                                </svg>
+                                                <h3 class="mt-2 text-sm font-medium text-gray-900">Tidak ada store aktif</h3>
+                                                <p class="mt-1 text-xs text-gray-500">Aktifkan store terlebih dahulu sebelum membuat transaksi POS.</p>
+                                            </td>
+                                        </tr>
+                                    @endforelse
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
             @else
@@ -115,14 +178,14 @@
                                 </a>
                             @endif
                         </div>
-                        <a href="{{ route('admin.pos.terminal') }}"
+                        <button type="button" @click="requestStoreChange()"
                             class="inline-flex items-center justify-center px-4 py-3 text-sm font-semibold text-gray-700 bg-white border border-gray-300 rounded-xl shadow-sm hover:bg-gray-50 transition-colors whitespace-nowrap">
                             Ganti Store
-                        </a>
+                        </button>
                     </div>
                 </form>
 
-                <!-- Products Grid -->
+                <!-- Products Table -->
                 @if($products->isEmpty())
                     <div class="bg-white border border-gray-200 rounded-lg p-10 text-center shadow-sm">
                         <svg class="mx-auto h-8 w-8 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -133,103 +196,97 @@
                         <p class="mt-1 text-xs text-gray-500">Try adjusting your search or filter.</p>
                     </div>
                 @else
-                    <div class="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4">
-                        @foreach($products as $product)
-                            <div @click="addToCart({{ json_encode($product) }})"
-                                class="bg-white border text-left border-gray-100/80 rounded-2xl overflow-hidden shadow-sm hover:border-blue-200 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 cursor-pointer group active:scale-[0.98] select-none flex flex-col h-full ring-1 ring-slate-900/5">
-
-                            <!-- Image Area -->
-                            <div
-                                class="aspect-square bg-slate-50 flex items-center justify-center relative overflow-hidden border-b border-gray-100/50 shrink-0">
-                                @if($product->image_path)
-                                    <img src="{{ Str::startsWith($product->image_path, 'http') ? $product->image_path : asset('storage/' . $product->image_path) }}"
-                                        alt="{{ $product->name }}"
-                                        class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
-                                @else
-                                    <svg class="w-12 h-12 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                                            d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z">
-                                        </path>
-                                    </svg>
-                                @endif
-
-                                @if($product->stock <= 0)
-                                    <div class="absolute inset-0 bg-white/70 backdrop-blur-sm flex items-center justify-center">
-                                        <span
-                                            class="inline-flex items-center px-3 py-1.5 rounded-full text-[12px] font-bold border bg-red-50 text-red-700 border-red-200 shadow-sm leading-none tracking-wide uppercase">Habis</span>
-                                    </div>
-                                @elseif($product->stock <= 10)
-                                    <div class="absolute top-3 right-3">
-                                        <span
-                                            class="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-bold bg-amber-100/90 text-amber-800 border border-amber-200 shadow-sm leading-none backdrop-blur-sm">Sisa
-                                            {{ $product->stock }}</span>
-                                    </div>
-                                @endif
-                            </div>
-
-                            <!-- Product Info -->
-                            <div class="p-4 flex-1 flex flex-col justify-between">
-                                <div>
-                                    <h3
-                                        class="text-[14px] font-bold text-gray-900 leading-snug line-clamp-2 mb-1.5 group-hover:text-blue-700 transition-colors">
-                                        {{ $product->name }}
-                                    </h3>
-                                    <p class="text-[12px] text-gray-500 font-medium">{{ $product->code }}</p>
-                                </div>
-                                <div class="mt-3">
-                                    <span class="text-[12px] font-bold text-amber-700 tracking-tight">Harga jual diatur di keranjang</span>
-                                </div>
-                            </div>
-                            </div>
-                        @endforeach
+                    <div class="bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm max-w-full">
+                        <div class="overflow-x-auto">
+                            <table class="w-full min-w-[700px] text-left border-collapse">
+                                <thead>
+                                    <tr class="bg-gray-50 border-b border-gray-200">
+                                        <th class="px-4 py-3 text-[11px] font-bold text-gray-500 uppercase tracking-wider sm:w-auto min-w-[100px]">Kode</th>
+                                        <th class="px-4 py-3 text-[11px] font-bold text-gray-500 uppercase tracking-wider sm:w-auto min-w-[140px]">Produk</th>
+                                        <th class="px-4 py-3 text-[11px] font-bold text-gray-500 uppercase tracking-wider text-center sm:w-auto min-w-[140px]">Stok</th>
+                                        <th class="px-4 py-3 text-[11px] font-bold text-gray-500 uppercase tracking-wider sm:w-auto min-w-[140px]">Harga Beli</th>
+                                        <th class="px-4 py-3 text-[11px] font-bold text-gray-500 uppercase tracking-wider sm:w-auto min-w-[140px]">Distributor</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-gray-200 bg-white">
+                                    @foreach($products as $product)
+                                        <tr @click="addToCart({{ json_encode($product) }})"
+                                            class="hover:bg-blue-50/50 transition-colors cursor-pointer select-none">
+                                            <td class="px-4 py-3">
+                                                <span class="inline-flex items-center px-2 py-1 rounded text-[11px] font-medium bg-gray-100 text-gray-700 border border-gray-200/50 shadow-sm leading-none">
+                                                    {{ $product->code }}
+                                                </span>
+                                            </td>
+                                            <td class="px-4 py-3">
+                                                <p class="text-[13px] font-semibold text-gray-900 leading-none truncate block max-w-[140px]">{{ $product->name }}</p>
+                                            </td>
+                                            <td class="px-4 py-3 text-center">
+                                                @if($product->stock <= 0)
+                                                    <span
+                                                        class="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-bold border bg-red-50 text-red-700 border-red-200 shadow-sm leading-none uppercase">Habis</span>
+                                                @elseif($product->stock <= 10)
+                                                    <span
+                                                        class="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-bold bg-amber-100/90 text-amber-800 border border-amber-200 shadow-sm leading-none">Sisa
+                                                        {{ $product->stock }}</span>
+                                                @else
+                                                    <span
+                                                        class="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-100 shadow-sm leading-none">
+                                                        {{ $product->stock }} pcs
+                                                    </span>
+                                                @endif
+                                            </td>
+                                            <td class="px-4 py-3">
+                                                <span class="text-[13px] font-bold text-gray-900">Rp {{ number_format((float) $product->cost, 0, ',', '.') }}</span>
+                                            </td>
+                                            <td class="px-4 py-3">
+                                                <p class="text-[13px] text-gray-500 font-medium">{{ $product->distributor ?: 'Tanpa distributor' }}</p>
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 @endif
             @endif
         </div>
 
         <!-- Right Column: Cart Sidebar -->
-        <div class="w-full lg:w-[350px] xl:w-[400px] shrink-0">
-            <div class="lg:sticky lg:top-4 flex flex-col gap-4">
+        @if($selectedStore)
+            <div class="w-full lg:w-[350px] xl:w-[400px] max-w-full shrink-0 lg:flex-none">
+                <div class="lg:sticky lg:top-4 flex flex-col gap-4">
 
-                @if($selectedStore)
-                    <div class="bg-white border border-gray-200 rounded-xl shadow-sm p-4">
-                        <p class="text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-3">Selected Store</p>
-                        <div class="space-y-2">
-                            <div class="flex justify-between text-[12px]">
-                                <span class="text-gray-500">ID</span>
-                                <span class="font-semibold text-gray-900">{{ $selectedStore->code }}</span>
-                            </div>
-                            <div class="flex justify-between text-[12px]">
-                                <span class="text-gray-500">Store Name</span>
-                                <span class="font-semibold text-gray-900 text-right">{{ $selectedStore->name }}</span>
-                            </div>
-                            <div class="flex justify-between text-[12px]">
-                                <span class="text-gray-500">Store Category</span>
-                                <span class="font-semibold text-gray-900">{{ $selectedStore->store_category }}</span>
-                            </div>
+                    <div class="flex w-full items-center bg-white border border-gray-200 rounded-xl shadow-sm p-3 gap-x-2">
+                        <span
+                            class="flex aspect-square size-8 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-blue-600 to-blue-700 text-[11px] font-bold text-white shadow-lg"
+                            aria-hidden="true">
+                            {{ strtoupper(substr($selectedStore->name, 0, 2)) }}
+                        </span>
+                        <div class="truncate text-left">
+                            <p class="truncate whitespace-nowrap text-[13px] font-medium text-gray-900 tracking-tight">
+                                {{ $selectedStore->name }}
+                            </p>
+                            <p class="text-left text-[11px] text-gray-400 font-medium tracking-normal leading-none mt-1">
+                                {{ $selectedStore->store_category }}
+                            </p>
                         </div>
                     </div>
-                @endif
 
-                <div class="bg-white border border-gray-200 rounded-xl shadow-sm flex flex-col"
-                    style="{{ $selectedStore ? 'height: calc(100vh - 17rem);' : 'height: calc(100vh - 8rem);' }}">
+                    <div class="bg-white border border-gray-200 rounded-xl shadow-sm flex flex-col"
+                        style="height: calc(100vh - 8rem);">
 
                 <!-- Cart Header -->
                 <div
                     class="px-4 py-3 border-b border-gray-100 flex justify-between items-center bg-gray-50 rounded-t-xl shrink-0">
                     <h2 class="text-sm font-bold text-gray-900 tracking-tight flex items-center gap-2">
-                        <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path>
-                        </svg>
-                        Current Ticket
+                        Transaksi
                     </h2>
                     <button x-show="cart.length > 0" @click="clearCart()"
                         class="text-[12px] font-medium text-red-600 hover:text-red-700 transition-colors">Clear All</button>
                 </div>
 
                 <!-- Cart Items -->
-                <div class="flex-1 overflow-y-auto p-3 space-y-2 bg-white">
+                <div class="flex-1 min-h-[200px] overflow-y-auto p-3 space-y-2 bg-white">
                     <template x-if="cart.length === 0">
                         <div class="h-full flex flex-col items-center justify-center text-gray-400 p-6 text-center">
                             <svg class="w-12 h-12 mb-3 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -237,14 +294,17 @@
                                     d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z">
                                 </path>
                             </svg>
-                            <p class="text-[13px] font-medium text-gray-500">Cart is empty</p>
+                            <p class="text-[13px] font-medium text-gray-500">Belum ada produk</p>
                         </div>
                     </template>
                     <template x-for="(item, index) in cart" :key="item.id">
                         <div
                             class="p-3 border border-gray-100 rounded-lg bg-gray-50/50 flex flex-col gap-2 relative group/item">
                             <div class="flex justify-between items-start gap-2 pr-4">
-                                <span class="text-[13px] font-medium text-gray-900 leading-tight" x-text="item.name"></span>
+                                <div class="pr-2">
+                                    <span class="text-[13px] font-medium text-gray-900 leading-tight block" x-text="item.name"></span>
+                                    <span class="text-[11px] text-gray-500" x-text="'Harga Beli: Rp ' + formatNumber(Number(item.cost || 0))"></span>
+                                </div>
                                 <button @click="removeFromCart(index)"
                                     class="absolute top-3 right-3 text-gray-400 hover:text-red-600">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -294,7 +354,7 @@
                     class="border-t border-gray-100 bg-white p-4 rounded-b-xl shrink-0 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.02)]">
                     <div class="space-y-1.5 mb-4">
                         <div class="flex justify-between items-center text-[13px] text-gray-500">
-                            <span>Total Capital</span>
+                            <span>Total Harga Beli</span>
                             <span class="font-medium text-gray-900" x-text="'Rp ' + formatNumber(totalCapital)"></span>
                         </div>
                         <div class="flex justify-between items-center text-[13px] text-gray-500">
@@ -308,13 +368,45 @@
                                 x-text="'Rp ' + formatNumber(total)"></span>
                         </div>
                     </div>
-                    <button @click="openCheckout()" :disabled="cart.length === 0 || total <= 0"
-                        :class="(cart.length === 0 || total <= 0) ? 'bg-gray-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700'"
+                    <button @click="openCheckout()" :disabled="cart.length === 0 || total <= 0 || hasInvalidPrices"
+                        :class="(cart.length === 0 || total <= 0 || hasInvalidPrices) ? 'bg-gray-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700'"
                         class="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-lg text-sm font-semibold text-white transition-all shadow-sm">
-                        <span>Charge</span>
-                        <span x-show="cart.length > 0" class="opacity-50">•</span>
-                        <span x-show="cart.length > 0" x-text="'Rp ' + formatNumber(total)"></span>
+                        <span>Simpan</span>
                     </button>
+                </div>
+                </div>
+            </div>
+        </div>
+        @endif
+
+        <div x-show="showStoreChangeConfirm" x-cloak class="fixed inset-0 z-50 overflow-y-auto" style="display: none;">
+            <div class="fixed inset-0 bg-gray-900/50 backdrop-blur-sm" @click="cancelStoreChange()"></div>
+            <div class="flex min-h-full items-center justify-center p-4">
+                <div class="relative w-full max-w-sm bg-white rounded-2xl shadow-2xl overflow-hidden border border-gray-100"
+                    @click.away="cancelStoreChange()">
+                    <div class="px-5 py-4 border-b border-gray-100 flex items-center justify-between">
+                        <h3 class="text-[15px] font-bold text-gray-900 tracking-tight">Ganti Toko?</h3>
+                        <button type="button" @click="cancelStoreChange()" class="text-gray-400 hover:text-gray-500">
+                            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
+                    </div>
+                    <div class="px-5 py-4">
+                        <p class="text-[13px] text-gray-600 leading-relaxed">
+                            Ada produk ditambahkan. Jika Anda mengganti toko, maka daftar produk akan hilang.
+                        </p>
+                    </div>
+                    <div class="bg-gray-50 px-5 py-4 flex justify-end gap-3 border-t border-gray-100">
+                        <button type="button" @click="cancelStoreChange()"
+                            class="inline-flex justify-center rounded-lg bg-white px-4 py-2.5 text-[14px] font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
+                            Batal
+                        </button>
+                        <button type="button" @click="confirmStoreChange()"
+                            class="inline-flex justify-center rounded-lg bg-blue-600 px-4 py-2.5 text-[14px] font-semibold text-white shadow-sm hover:bg-blue-700">
+                            Ya, Ganti
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -326,7 +418,7 @@
                 <div class="relative w-full max-w-md bg-white rounded-2xl shadow-2xl overflow-hidden border border-gray-100"
                     @click.away="showCheckout = false">
                     <div class="px-5 py-4 border-b border-gray-100 flex items-center justify-between">
-                        <h3 class="text-base font-bold text-gray-900">Payment Detail 🎉</h3>
+                        <h3 class="text-base font-bold text-gray-900">Detail Pembayaran</h3>
                         <button @click="showCheckout = false" class="text-gray-400 hover:text-gray-500"><svg class="w-5 h-5"
                                 fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -335,13 +427,13 @@
                     </div>
                     <div class="p-6">
                         <div class="text-center mb-6">
-                            <p class="text-[13px] text-gray-500 font-medium mb-1">Total Due</p>
+                            <p class="text-[13px] text-gray-500 font-medium mb-1">Total</p>
                             <p class="text-3xl font-bold text-gray-900 tracking-tight" x-text="'Rp ' + formatNumber(total)">
                             </p>
                         </div>
                         <div class="space-y-4">
                             <div>
-                                <label class="block text-[13px] font-bold text-gray-700 mb-2">Payment Method</label>
+                                <label class="block text-[13px] font-bold text-gray-700 mb-2">Metode Pembayaran</label>
                                 <div class="grid grid-cols-3 gap-3 mb-4">
                                     <template x-for="method in ['cash', 'qris', 'transfer']">
                                         <button @click="paymentMethod = method"
@@ -494,8 +586,8 @@
                     </div>
                     <div class="bg-gray-50 px-5 py-4 flex flex-row-reverse rounded-b-2xl border-t border-gray-100 gap-3">
                         <button @click="processPayment()"
-                            :disabled="isProcessing || (!isInstallment && paymentMethod === 'cash' && amountReceived < total) || (isInstallment && (downPayment <= 0 || downPayment > total || !dueDate))"
-                            :class="(isProcessing || (!isInstallment && paymentMethod === 'cash' && amountReceived < total) || (isInstallment && (downPayment <= 0 || downPayment > total || !dueDate))) ? 'bg-gray-400' : isInstallment ? 'bg-amber-500 hover:bg-amber-600' : 'bg-blue-600 hover:bg-blue-700'"
+                            :disabled="isProcessing || hasInvalidPrices || (!isInstallment && paymentMethod === 'cash' && amountReceived < total) || (isInstallment && (downPayment < 0 || downPayment > total || !dueDate))"
+                            :class="(isProcessing || hasInvalidPrices || (!isInstallment && paymentMethod === 'cash' && amountReceived < total) || (isInstallment && (downPayment < 0 || downPayment > total || !dueDate))) ? 'bg-gray-400' : isInstallment ? 'bg-amber-500 hover:bg-amber-600' : 'bg-blue-600 hover:bg-blue-700'"
                             class="inline-flex w-full justify-center rounded-lg px-4 py-2.5 text-[14px] font-semibold bg-blue-600 text-white shadow-sm transition-all sm:w-auto">
                             <svg x-show="isProcessing" class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none"
                                 viewBox="0 0 24 24">
@@ -530,6 +622,7 @@
                 isInstallment: false,
                 downPayment: 0,
                 dueDate: '',
+                showStoreChangeConfirm: false,
 
                 addToCart(product) {
                     if (!this.selectedStore) return;
@@ -571,6 +664,25 @@
                     this.calculateTotal();
                 },
 
+                requestStoreChange() {
+                    if (this.cart.length === 0) {
+                        window.location.href = '{{ route("admin.pos.terminal") }}';
+                        return;
+                    }
+
+                    this.showStoreChangeConfirm = true;
+                },
+
+                cancelStoreChange() {
+                    this.showStoreChangeConfirm = false;
+                },
+
+                confirmStoreChange() {
+                    this.showStoreChangeConfirm = false;
+                    this.clearCart();
+                    window.location.href = '{{ route("admin.pos.terminal") }}';
+                },
+
                 calculateTotal() {
                     this.total = this.cart.reduce((sum, item) => sum + ((Number(item.price || 0)) * item.qty), 0);
                 },
@@ -583,8 +695,16 @@
                     return this.total - this.totalCapital;
                 },
 
+                get hasInvalidPrices() {
+                    return this.cart.some(item => Number(item.price || 0) <= 0);
+                },
+
                 openCheckout() {
                     if (!this.selectedStore || this.total <= 0) return;
+                    if (this.hasInvalidPrices) {
+                        alert('Lengkapi semua harga jual produk sebelum checkout.');
+                        return;
+                    }
                     this.amountReceived = this.total;
                     this.downPayment = 0;
                     this.dueDate = '';
@@ -598,6 +718,10 @@
 
                 async processPayment() {
                     if (this.isProcessing) return;
+                    if (this.hasInvalidPrices) {
+                        alert('Lengkapi semua harga jual produk sebelum checkout.');
+                        return;
+                    }
                     this.isProcessing = true;
 
                     try {

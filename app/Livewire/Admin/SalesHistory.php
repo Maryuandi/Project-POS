@@ -3,6 +3,8 @@
 namespace App\Livewire\Admin;
 
 use App\Models\Sale;
+use App\Models\Store;
+use Livewire\Attributes\Url;
 use Livewire\Component;
 use Livewire\WithPagination;
 
@@ -15,6 +17,9 @@ class SalesHistory extends Component
 
     #[Url]
     public $filterStatus = '';
+
+    #[Url]
+    public $filterStore = '';
 
     #[Url]
     public $filterDate = 'semua';
@@ -35,6 +40,11 @@ class SalesHistory extends Component
         $this->resetPage();
     }
 
+    public function updatingFilterStore()
+    {
+        $this->resetPage();
+    }
+
     public function updatingFilterDate()
     {
         $this->resetPage();
@@ -42,10 +52,11 @@ class SalesHistory extends Component
 
     public function render()
     {
-        $query = Sale::with(['cashier', 'store']);
+        $query = Sale::historyBase();
 
         $search = $this->search;
         $statusFilter = $this->filterStatus;
+        $storeFilter = $this->filterStore;
         $filterDate = $this->filterDate;
         $startDate = $this->startDate;
         $endDate = $this->endDate;
@@ -70,6 +81,12 @@ class SalesHistory extends Component
             $query->where('status', 'installment');
         }
 
+        if ($storeFilter !== '') {
+            $query->whereHas('store', function ($q) use ($storeFilter) {
+                $q->where('store_category', $storeFilter);
+            });
+        }
+
         if ($filterDate === 'harian') {
             $query->whereDate('sold_at', now()->toDateString());
         } elseif ($filterDate === 'mingguan') {
@@ -87,12 +104,24 @@ class SalesHistory extends Component
         }
 
         $metricsQuery = clone $query;
-        $sales = $query->orderBy('sold_at', 'desc')->paginate(10);
+        $sales = $query->latestSold()->paginate(10);
+        $sales->getCollection()->transform(function ($sale) {
+            $sale->profit_amount = $sale->saleItems->sum(function ($item) {
+                return ((float) $item->unit_price - (float) ($item->product->cost ?? 0)) * $item->qty;
+            });
+
+            return $sale;
+        });
 
         // Metrics calculations (filtered)
         $totalRevenue = (clone $metricsQuery)->sum('amount_paid');
         $totalTransactions = (clone $metricsQuery)->count();
         $totalProductsSold = \App\Models\SaleItem::whereIn('sale_id', (clone $metricsQuery)->select('id'))->sum('qty');
+        $totalProfit = (float) \App\Models\SaleItem::query()
+            ->leftJoin('products', 'products.id', '=', 'sale_items.product_id')
+            ->whereIn('sale_items.sale_id', (clone $metricsQuery)->select('id'))
+            ->selectRaw('COALESCE(SUM((sale_items.unit_price - COALESCE(products.cost, 0)) * sale_items.qty), 0) as total_profit')
+            ->value('total_profit');
 
         // Upcoming due installments (next 3 days)
         $upcomingDueInstallments = Sale::where('status', 'installment')
@@ -107,15 +136,24 @@ class SalesHistory extends Component
             ->orderByDesc('created_at')
             ->get();
 
+        $storeCategories = Store::query()
+            ->select('store_category')
+            ->distinct()
+            ->orderBy('store_category')
+            ->pluck('store_category');
+
         return view('livewire.admin.sales-history', [
             'sales' => $sales,
+            'storeCategories' => $storeCategories,
             'totalRevenue' => $totalRevenue,
+            'totalProfit' => $totalProfit,
             'totalTransactions' => $totalTransactions,
             'totalProductsSold' => $totalProductsSold,
             'upcomingDueInstallments' => $upcomingDueInstallments,
             'unpaidInstallments' => $unpaidInstallments,
             'search' => $search,
             'filterStatus' => $statusFilter,
+            'filterStore' => $storeFilter,
             'filterDate' => $filterDate,
             'startDate' => $startDate,
             'endDate' => $endDate,

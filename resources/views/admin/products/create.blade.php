@@ -22,7 +22,7 @@
     </div>
 
     <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-        <form action="{{ route('admin.products.store') }}" method="POST" enctype="multipart/form-data" @submit="isSubmitting = true">
+        <form action="{{ route('admin.products.store') }}" method="POST" @submit="isSubmitting = true">
             @csrf
             <div class="px-6 py-6 pb-8 space-y-6">
 
@@ -102,46 +102,6 @@
                         @error('cost') <p class="text-red-500 text-xs mt-1.5 font-medium">{{ $message }}</p> @enderror
                     </div>
 
-                    <!-- Media -->
-                    <div class="col-span-1 md:col-span-2 pt-2">
-                        <h3 class="text-xs font-semibold text-gray-500 tracking-wider uppercase mb-3">Product Media</h3>
-
-                        <div class="flex items-start space-x-4">
-                            <div class="shrink-0">
-                                <template x-if="imagePreview">
-                                    <img :src="imagePreview" class="w-20 h-20 rounded-lg object-cover border border-gray-200">
-                                </template>
-                                <template x-if="!imagePreview && image_path">
-                                    <img :src="image_path.startsWith('http') ? image_path : '/storage/' + image_path" class="w-20 h-20 rounded-lg object-cover border border-gray-200">
-                                </template>
-                                <template x-if="!imagePreview && !image_path">
-                                    <div class="w-20 h-20 rounded-lg bg-gray-50 border-2 border-dashed border-gray-200 flex items-center justify-center text-gray-300">
-                                        <svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-                                    </div>
-                                </template>
-                            </div>
-
-                            <div class="flex-1 space-y-3">
-                                <div>
-                                    <input type="file" id="image" name="image" @change="fileChosen" accept="image/*"
-                                        class="block w-full text-xs text-gray-500 file:mr-4 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:text-[12px] file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 transition-all cursor-pointer">
-                                    @error('image') <p class="text-red-500 text-xs mt-1 font-medium">{{ $message }}</p> @enderror
-                                </div>
-
-                                <div class="relative">
-                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                        <svg class="h-3.5 w-3.5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path></svg>
-                                    </div>
-                                    <input type="text" id="image_path" name="image_path" x-model="image_path"
-                                        class="block w-full rounded-md border-gray-300 py-1.5 pl-9 pr-3 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 text-[13px] shadow-sm"
-                                        placeholder="Or paste an image URL here...">
-                                    @error('image_path') <p class="text-red-500 text-xs mt-1 font-medium">{{ $message }}</p> @enderror
-</div>
-                                <p class="text-xs text-gray-500">Max Ukuran : 10 MB</p>
-                            </div>
-                        </div>
-                    </div>
-
                     <div class="col-span-1 md:col-span-2 pt-2 border-t border-gray-100 mt-4">
                         <label class="flex items-center space-x-3 cursor-pointer group w-max">
                             <div class="relative flex items-center">
@@ -177,8 +137,6 @@
             name: '{{ old('name') }}',
             code: '{{ old('code') }}',
             cost: {{ old('cost', 0) }},
-            image_path: '{{ old('image_path') }}',
-            imagePreview: null,
             isSubmitting: false,
 
             generateCode() {
@@ -193,15 +151,6 @@
                     }
                 } else {
                     this.code = '';
-                }
-            },
-
-            fileChosen(event) {
-                const file = event.target.files[0];
-                if (file) {
-                    this.imagePreview = URL.createObjectURL(file);
-                } else {
-                    this.imagePreview = null;
                 }
             }
         }

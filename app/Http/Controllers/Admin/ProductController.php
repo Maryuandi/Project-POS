@@ -48,19 +48,11 @@ class ProductController extends Controller
             'stock' => 'required|integer|min:0',
             'cost' => 'required|numeric|min:0',
             'is_active' => 'boolean',
-            'image' => 'nullable|image|max:10240',
-            'image_path' => 'nullable|string',
             'notes' => 'nullable|string|max:1000',
         ];
 
         $validatedData = $request->validate($rules);
         $validatedData['is_active'] = $request->boolean('is_active');
-
-        if ($request->hasFile('image')) {
-            $validatedData['image_path'] = $request->file('image')->store('products', 'public');
-        }
-
-        unset($validatedData['image']);
 
         $product = Product::create($validatedData);
 
@@ -93,19 +85,11 @@ class ProductController extends Controller
             'stock' => 'required|integer|min:0',
             'cost' => 'required|numeric|min:0',
             'is_active' => 'boolean',
-            'image' => 'nullable|image|max:10240',
-            'image_path' => 'nullable|string',
             'notes' => 'nullable|string|max:1000',
         ];
 
         $validatedData = $request->validate($rules);
         $validatedData['is_active'] = $request->boolean('is_active');
-
-        if ($request->hasFile('image')) {
-            $validatedData['image_path'] = $request->file('image')->store('products', 'public');
-        }
-
-        unset($validatedData['image']);
 
         $oldStock = $product->stock;
         $product->update($validatedData);

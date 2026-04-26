@@ -3,7 +3,6 @@
 namespace App\Livewire\Admin;
 
 use App\Models\Product;
-use Illuminate\Support\Facades\Storage;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Url;
 use Livewire\Component;
@@ -43,9 +42,6 @@ class ProductIndex extends Component
         if ($this->productToDelete) {
             $product = Product::find($this->productToDelete->id);
             if ($product) {
-                if ($product->image_path && ! str_starts_with($product->image_path, 'http')) {
-                    Storage::disk('public')->delete($product->image_path);
-                }
                 $product->delete();
                 session()->flash('message', 'Produk berhasil dihapus.');
             }

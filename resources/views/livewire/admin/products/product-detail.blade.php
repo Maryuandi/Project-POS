@@ -12,27 +12,7 @@
 
     <!-- Product Header Card -->
     <div class="bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm mb-6 p-6">
-        <div class="flex flex-col sm:flex-row gap-6">
-            <!-- Image Section -->
-            <div class="shrink-0 flex justify-center sm:justify-start">
-                @if($product->image_path)
-                    <img src="{{ Str::startsWith($product->image_path, 'http') ? $product->image_path : asset('storage/' . $product->image_path) }}"
-                        alt="{{ $product->name }}"
-                        class="w-48 h-48 md:w-64 md:h-64 lg:w-72 lg:h-72 object-cover rounded-xl border border-gray-200 shadow-sm">
-                @else
-                    <div
-                        class="w-48 h-48 md:w-64 md:h-64 lg:w-72 lg:h-72 rounded-xl bg-gray-50 border border-gray-200 flex flex-col items-center justify-center text-gray-400 shadow-sm">
-                        <svg class="w-12 h-12 md:w-16 md:h-16 opacity-40 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z">
-                            </path>
-                        </svg>
-                        <span class="text-[11px] md:text-sm font-semibold uppercase tracking-wider">No Image</span>
-                    </div>
-                @endif
-            </div>
-
-            <!-- Details Section -->
+        <div class="flex flex-col gap-6">
             <div class="flex-1 flex flex-col justify-center mb-4">
                 <div class="flex flex-wrap items-center gap-2 lg:gap-3 mb-3">
                     <span

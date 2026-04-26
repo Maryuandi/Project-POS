@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -68,6 +69,22 @@ class Sale extends Model
     public function installmentPayments(): HasMany
     {
         return $this->hasMany(InstallmentPayment::class);
+    }
+
+    /**
+     * Base query for sales history views and reports.
+     */
+    public function scopeHistoryBase(Builder $query): Builder
+    {
+        return $query->with(['cashier', 'store', 'saleItems.product']);
+    }
+
+    /**
+     * Order sales by latest sold date.
+     */
+    public function scopeLatestSold(Builder $query): Builder
+    {
+        return $query->orderByDesc('sold_at');
     }
 
     /**

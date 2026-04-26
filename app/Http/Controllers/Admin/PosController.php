@@ -61,7 +61,10 @@ class PosController extends Controller
                 });
             }
 
-            $products = $query->take(24)->get();
+            $products = $query
+                ->alphabetical()
+                ->take(24)
+                ->get();
         }
 
         return view('admin.pos.terminal', compact('stores', 'storeCategories', 'storeSearch', 'storeCategory', 'selectedStore', 'products', 'search'));
@@ -78,7 +81,7 @@ class PosController extends Controller
             'payment_method' => 'required|string',
             'amount_received' => 'required|numeric',
             'is_installment' => 'sometimes|boolean',
-            'down_payment' => 'exclude_unless:is_installment,true|required|numeric|min:1',
+            'down_payment' => 'exclude_unless:is_installment,true|required|numeric|min:0',
             'due_date' => 'exclude_unless:is_installment,true|required|date|after_or_equal:today',
         ]);
 
@@ -121,8 +124,8 @@ class PosController extends Controller
         }
 
         // Validation for installment
-        if ($isInstallment && ($downPayment <= 0 || $downPayment > $totalAmount)) {
-            return response()->json(['message' => 'Down payment harus antara 1 dan total belanja'], 400);
+        if ($isInstallment && ($downPayment < 0 || $downPayment > $totalAmount)) {
+            return response()->json(['message' => 'Down payment harus antara 0 dan total belanja'], 400);
         }
 
         try {
