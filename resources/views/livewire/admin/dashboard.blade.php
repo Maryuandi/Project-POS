@@ -82,10 +82,15 @@
         ])
     </div>
 
-        <!-- Revenue Chart -->
+    <!-- Revenue Chart -->
     <div class="mt-6 bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden flex flex-col" x-data="{
             activeTab: 'daily',
-            chart: null,
+            chartInitAttempts: 0,
+            charts: {
+                daily: null,
+                monthly: null,
+                yearly: null,
+            },
             datasets: {
                 daily: {
                     labels: @js($dailyChart->pluck('label')),
@@ -100,93 +105,118 @@
                     data: @js($yearlyChart->pluck('value'))
                 }
             },
+            chartOptions() {
+                return {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    animation: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: '#1f2937',
+                            padding: { x: 12, y: 8 },
+                            cornerRadius: 8,
+                            displayColors: false,
+                            callbacks: {
+                                label: function(ctx) {
+                                    return 'Rp ' + ctx.parsed.y.toLocaleString('id-ID');
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            grid: { display: false },
+                            ticks: { font: { size: 10, weight: '500' }, color: '#9ca3af' },
+                            border: { display: false }
+                        },
+                        y: {
+                            grid: { color: '#f3f4f6', drawBorder: false },
+                            ticks: {
+                                font: { size: 10, weight: '500' },
+                                color: '#9ca3af',
+                                callback: function(value) {
+                                    if (value >= 1000000) return (value / 1000000).toFixed(1) + 'M';
+                                    if (value >= 1000) return (value / 1000).toFixed(0) + 'K';
+                                    return value;
+                                },
+                                maxTicksLimit: 5
+                            },
+                            border: { display: false }
+                        }
+                    },
+                    interaction: { intersect: false, mode: 'index' }
+                };
+            },
+            normalizedDataset(tab) {
+                const source = this.datasets[tab] || { labels: [], data: [] };
+                const labels = Array.isArray(source.labels) ? source.labels : Object.values(source.labels || {});
+                const data = (Array.isArray(source.data) ? source.data : Object.values(source.data || {}))
+                    .map(value => Number(value || 0));
+
+                return { labels, data };
+            },
+            canvasRefFor(tab) {
+                if (tab === 'monthly') return 'revenueChartMonthly';
+                if (tab === 'yearly') return 'revenueChartYearly';
+                return 'revenueChartDaily';
+            },
+            ensureChart(tab) {
+                if (this.charts[tab]) return;
+
+                const canvas = this.$refs[this.canvasRefFor(tab)];
+                if (!canvas) return;
+
+                const ctx = canvas.getContext('2d');
+                const dataset = this.normalizedDataset(tab);
+
+                const gradient = ctx.createLinearGradient(0, 0, 0, 250);
+                gradient.addColorStop(0, 'rgba(59, 130, 246, 0.15)');
+                gradient.addColorStop(1, 'rgba(59, 130, 246, 0.01)');
+
+                this.charts[tab] = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: dataset.labels,
+                        datasets: [{
+                            label: 'Revenue',
+                            data: dataset.data,
+                            borderColor: 'rgb(59, 130, 246)',
+                            backgroundColor: gradient,
+                            borderWidth: 2.5,
+                            fill: true,
+                            tension: 0.4,
+                            pointRadius: 4,
+                            pointBackgroundColor: '#fff',
+                            pointBorderColor: 'rgb(59, 130, 246)',
+                            pointBorderWidth: 2,
+                            pointHoverRadius: 6,
+                            pointHoverBackgroundColor: 'rgb(59, 130, 246)',
+                            pointHoverBorderColor: '#fff',
+                            pointHoverBorderWidth: 2.5,
+                        }]
+                    },
+                    options: this.chartOptions(),
+                });
+            },
             initChart() {
-                if (typeof Chart === 'undefined') return;
+                if (typeof Chart === 'undefined') {
+                    if (this.chartInitAttempts < 30) {
+                        this.chartInitAttempts++;
+                        setTimeout(() => this.initChart(), 100);
+                    }
+                    return;
+                }
 
                 this.$nextTick(() => {
-                    const ctx = this.$refs.revenueChart.getContext('2d');
-
-                    // Destroy existing chart if it exists
-                    if (this.chart) {
-                        this.chart.destroy();
-                    }
-
-                    const gradient = ctx.createLinearGradient(0, 0, 0, 250);
-                    gradient.addColorStop(0, 'rgba(59, 130, 246, 0.15)');
-                    gradient.addColorStop(1, 'rgba(59, 130, 246, 0.01)');
-
-                    this.chart = new Chart(ctx, {
-                        type: 'line',
-                        data: {
-                            labels: this.datasets[this.activeTab].labels,
-                            datasets: [{
-                                label: 'Revenue',
-                                data: this.datasets[this.activeTab].data,
-                                borderColor: 'rgb(59, 130, 246)',
-                                backgroundColor: gradient,
-                                borderWidth: 2.5,
-                                fill: true,
-                                tension: 0.4,
-                                pointRadius: 4,
-                                pointBackgroundColor: '#fff',
-                                pointBorderColor: 'rgb(59, 130, 246)',
-                                pointBorderWidth: 2,
-                                pointHoverRadius: 6,
-                                pointHoverBackgroundColor: 'rgb(59, 130, 246)',
-                                pointHoverBorderColor: '#fff',
-                                pointHoverBorderWidth: 2.5,
-                            }]
-                        },
-                        options: {
-                            responsive: true,
-                            maintainAspectRatio: false,
-                            plugins: {
-                                legend: { display: false },
-                                tooltip: {
-                                    backgroundColor: '#1f2937',
-                                    padding: { x: 12, y: 8 },
-                                    cornerRadius: 8,
-                                    displayColors: false,
-                                    callbacks: {
-                                        label: function(ctx) {
-                                            return 'Rp ' + ctx.parsed.y.toLocaleString('id-ID');
-                                        }
-                                    }
-                                }
-                            },
-                            scales: {
-                                x: {
-                                    grid: { display: false },
-                                    ticks: { font: { size: 10, weight: '500' }, color: '#9ca3af' },
-                                    border: { display: false }
-                                },
-                                y: {
-                                    grid: { color: '#f3f4f6', drawBorder: false },
-                                    ticks: {
-                                        font: { size: 10, weight: '500' },
-                                        color: '#9ca3af',
-                                        callback: function(value) {
-                                            if (value >= 1000000) return (value / 1000000).toFixed(1) + 'M';
-                                            if (value >= 1000) return (value / 1000).toFixed(0) + 'K';
-                                            return value;
-                                        },
-                                        maxTicksLimit: 5
-                                    },
-                                    border: { display: false }
-                                }
-                            },
-                            interaction: { intersect: false, mode: 'index' }
-                        }
-                    });
+                    this.ensureChart('daily');
                 });
             },
             switchTab(tab) {
+                if (this.activeTab === tab) return;
+
                 this.activeTab = tab;
-                if (this.chart) {
-                    this.chart.data.labels = this.datasets[tab].labels;
-                    this.chart.data.datasets[0].data = this.datasets[tab].data;
-                    this.chart.update();
-                }
+                this.$nextTick(() => this.ensureChart(tab));
             }
         }" x-init="initChart()">
         <!-- Chart Header -->
@@ -217,7 +247,9 @@
         <!-- Chart Canvas -->
         <div class="p-5 grow flex items-center">
             <div class="w-full" style="height: 280px;">
-                <canvas x-ref="revenueChart"></canvas>
+                <canvas x-show="activeTab === 'daily'" x-ref="revenueChartDaily"></canvas>
+                <canvas x-show="activeTab === 'monthly'" x-ref="revenueChartMonthly" style="display: none;"></canvas>
+                <canvas x-show="activeTab === 'yearly'" x-ref="revenueChartYearly" style="display: none;"></canvas>
             </div>
         </div>
     </div>
