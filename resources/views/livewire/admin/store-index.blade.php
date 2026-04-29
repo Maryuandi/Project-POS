@@ -24,16 +24,26 @@
 
     <form method="GET" action="{{ url()->current() }}"
         class="mb-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-        <div class="relative w-full sm:w-[320px]">
-            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+        <div class="flex w-full sm:w-auto items-center gap-2">
+            <div class="relative flex-1 sm:w-[320px]">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <svg class="h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                </div>
+                <input type="text" name="search" value="{{ $search }}"
+                    class="block w-full pl-9 pr-3 py-2 border border-gray-300 rounded-lg text-sm bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-colors shadow-sm"
+                    placeholder="Cari Store...">
+            </div>
+            <button type="submit"
+                class="inline-flex items-center justify-center gap-2 px-3.5 py-2 text-sm font-semibold text-gray-700 bg-white border border-gray-300 rounded-lg shadow-sm hover:bg-gray-50 transition-colors">
                 <svg class="h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                 </svg>
-            </div>
-            <input type="text" name="search" value="{{ $search }}"
-                class="block w-full pl-9 pr-3 py-2 border border-gray-300 rounded-lg text-sm bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-colors shadow-sm"
-                placeholder="Cari Store...">
+                <span>Cari</span>
+            </button>
         </div>
     </form>
 
@@ -117,69 +127,88 @@
                         </th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-gray-200 bg-white">
-                    @forelse ($stores as $store)
-                        <tr wire:key="store-row-{{ $store->id }}"
-                            class="hover:bg-gray-50 cursor-default transition-colors group">
-                            <td class="px-3 py-2.5 text-center border-r border-gray-200">
-                                <input type="checkbox"
-                                    class="w-3.5 h-3.5 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
-                            </td>
-                            <td class="w-px whitespace-nowrap px-3 py-2.5 border-r border-gray-200">
-                                <span
-                                    class="bg-gray-100 text-gray-600 px-2.5 py-1 rounded text-[11px] font-mono tracking-tight font-semibold border border-gray-200/50">
-                                    {{ $store->code }}
-                                </span>
-                            </td>
-                            <td class="w-px whitespace-nowrap px-3 py-2.5 border-r border-gray-200">
-                                <span
-                                    class="inline-flex items-center px-2 py-1 rounded text-[11px] font-medium bg-blue-50 text-blue-700 border border-blue-100 shadow-sm leading-none">
-                                    {{ $store->store_category }}
-                                </span>
-                            </td>
-                            <td class="px-3 py-2.5 border-r border-gray-200">
-                                <span class="text-[13px] font-semibold text-gray-900 block truncate">{{ $store->name }}</span>
-                            </td>
-                            <td class="hidden md:table-cell px-3 py-2.5 border-r border-gray-200">
-                                <span class="text-[13px] text-gray-500 block truncate max-w-xs"
-                                    title="{{ $store->address }}">{{ $store->address }}</span>
-                            </td>
-                            <td class="w-px whitespace-nowrap px-3 py-2.5 border-r border-gray-200 text-center">
-                                <button wire:click="toggleActive({{ $store->id }})" class="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold tracking-wider uppercase transition-all
-                                            {{ $store->is_active
-                        ? 'bg-emerald-50 text-emerald-700 border border-emerald-100/50 hover:bg-emerald-100'
-                        : 'bg-slate-100 text-slate-500 border border-slate-200/60 hover:bg-slate-200 shadow-sm' }}">
-                                    <span class="flex items-center gap-1.5">
-                                        {{ $store->is_active ? 'Aktif' : 'Non-Aktif' }}
-                                    </span>
+                @forelse ($storeGroups as $letter => $groupStores)
+                    <tbody x-data="{ open: true }" class="divide-y divide-gray-200 bg-white">
+                        <tr class="bg-gray-100">
+                            <td colspan="7" class="px-3 py-2">
+                                <button type="button"
+                                    class="flex w-full items-center justify-between text-xs font-semibold text-gray-600 uppercase tracking-widest"
+                                    @click="open = !open" x-bind:aria-expanded="open">
+                                    <span>{{ $letter }}</span>
+                                    <svg class="h-4 w-4 text-gray-400 transition-transform" fill="none"
+                                        viewBox="0 0 24 24" stroke="currentColor"
+                                        x-bind:class="open ? 'rotate-180' : ''">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M19 9l-7 7-7-7" />
+                                    </svg>
                                 </button>
                             </td>
-                            <td class="px-3 py-2.5 text-center w-24 whitespace-nowrap">
-                                <div class="flex items-center justify-center gap-1.5">
-                                    <a href="{{ route('admin.stores.edit', $store->id) }}" wire:navigate title="Edit"
-                                        class="inline-flex items-center justify-center w-7 h-7 bg-white border border-gray-200 rounded-lg shadow-sm text-slate-400 hover:text-blue-600 hover:border-blue-200 hover:bg-blue-50 transition-all focus:outline-none">
-                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                                            stroke-width="2">
-                                            <path stroke-linecap="round" stroke-linejoin="round"
-                                                d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z">
-                                            </path>
-                                        </svg>
-                                    </a>
-                                    <button type="button"
-                                        @click="$dispatch('open-delete-modal', { name: '{{ addslashes($store->name) }}', url: '{{ route('admin.stores.destroy', $store->id) }}' })"
-                                        title="Delete"
-                                        class="inline-flex items-center justify-center w-7 h-7 bg-white border border-gray-200 rounded-lg shadow-sm text-slate-400 hover:text-red-600 hover:border-red-200 hover:bg-red-50 transition-all focus:outline-none">
-                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                                            stroke-width="2">
-                                            <path stroke-linecap="round" stroke-linejoin="round"
-                                                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16">
-                                            </path>
-                                        </svg>
-                                    </button>
-                                </div>
-                            </td>
                         </tr>
-                    @empty
+                        @foreach ($groupStores as $store)
+                            <tr x-show="open" wire:key="store-row-{{ $store->id }}"
+                                class="hover:bg-gray-50 cursor-default transition-colors group">
+                                <td class="px-3 py-2.5 text-center border-r border-gray-200">
+                                    <input type="checkbox"
+                                        class="w-3.5 h-3.5 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
+                                </td>
+                                <td class="w-px whitespace-nowrap px-3 py-2.5 border-r border-gray-200">
+                                    <span
+                                        class="bg-gray-100 text-gray-600 px-2.5 py-1 rounded text-[11px] font-mono tracking-tight font-semibold border border-gray-200/50">
+                                        {{ $store->code }}
+                                    </span>
+                                </td>
+                                <td class="w-px whitespace-nowrap px-3 py-2.5 border-r border-gray-200">
+                                    <span
+                                        class="inline-flex items-center px-2 py-1 rounded text-[11px] font-medium bg-blue-50 text-blue-700 border border-blue-100 shadow-sm leading-none">
+                                        {{ $store->store_category }}
+                                    </span>
+                                </td>
+                                <td class="px-3 py-2.5 border-r border-gray-200">
+                                    <span class="text-[13px] font-semibold text-gray-900 block truncate">{{ $store->name }}</span>
+                                </td>
+                                <td class="hidden md:table-cell px-3 py-2.5 border-r border-gray-200">
+                                    <span class="text-[13px] text-gray-500 block truncate max-w-xs"
+                                        title="{{ $store->address }}">{{ $store->address }}</span>
+                                </td>
+                                <td class="w-px whitespace-nowrap px-3 py-2.5 border-r border-gray-200 text-center">
+                                    <button wire:click="toggleActive({{ $store->id }})" class="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold tracking-wider uppercase transition-all
+                                                {{ $store->is_active
+                            ? 'bg-emerald-50 text-emerald-700 border border-emerald-100/50 hover:bg-emerald-100'
+                            : 'bg-slate-100 text-slate-500 border border-slate-200/60 hover:bg-slate-200 shadow-sm' }}">
+                                        <span class="flex items-center gap-1.5">
+                                            {{ $store->is_active ? 'Aktif' : 'Non-Aktif' }}
+                                        </span>
+                                    </button>
+                                </td>
+                                <td class="px-3 py-2.5 text-center w-24 whitespace-nowrap">
+                                    <div class="flex items-center justify-center gap-1.5">
+                                        <a href="{{ route('admin.stores.edit', $store->id) }}" wire:navigate title="Edit"
+                                            class="inline-flex items-center justify-center w-7 h-7 bg-white border border-gray-200 rounded-lg shadow-sm text-slate-400 hover:text-blue-600 hover:border-blue-200 hover:bg-blue-50 transition-all focus:outline-none">
+                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                                                stroke-width="2">
+                                                <path stroke-linecap="round" stroke-linejoin="round"
+                                                    d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z">
+                                                </path>
+                                            </svg>
+                                        </a>
+                                        <button type="button"
+                                            @click="$dispatch('open-delete-modal', { name: '{{ addslashes($store->name) }}', url: '{{ route('admin.stores.destroy', $store->id) }}' })"
+                                            title="Delete"
+                                            class="inline-flex items-center justify-center w-7 h-7 bg-white border border-gray-200 rounded-lg shadow-sm text-slate-400 hover:text-red-600 hover:border-red-200 hover:bg-red-50 transition-all focus:outline-none">
+                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                                                stroke-width="2">
+                                                <path stroke-linecap="round" stroke-linejoin="round"
+                                                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16">
+                                                </path>
+                                            </svg>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                @empty
+                    <tbody class="divide-y divide-gray-200 bg-white">
                         <tr>
                             <td colspan="7" class="px-3 py-10 text-center">
                                 <svg class="mx-auto h-8 w-8 text-gray-300" fill="none" viewBox="0 0 24 24"
@@ -191,8 +220,8 @@
                                 <p class="mt-1 text-xs text-gray-500">Silakan tambahkan store baru.</p>
                             </td>
                         </tr>
-                    @endforelse
-                </tbody>
+                    </tbody>
+                @endforelse
             </table>
         </div>
 

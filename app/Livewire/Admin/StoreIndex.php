@@ -36,11 +36,21 @@ class StoreIndex extends Component
                         ->orWhere('address', 'like', '%' . $this->search . '%');
                 });
             })
-            ->latest()
+            ->orderByRaw('LOWER(name) asc')
             ->paginate(10);
+
+        $storeGroups = $stores->getCollection()
+            ->groupBy(function ($store) {
+                $name = ltrim((string) $store->name);
+                $firstChar = $name !== '' ? strtoupper(substr($name, 0, 1)) : '#';
+
+                return preg_match('/[A-Z]/', $firstChar) ? $firstChar : '#';
+            })
+            ->sortKeys();
 
         return view('livewire.admin.store-index', [
             'stores' => $stores,
+            'storeGroups' => $storeGroups,
         ]);
     }
 }
