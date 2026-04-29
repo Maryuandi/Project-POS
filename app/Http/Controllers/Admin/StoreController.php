@@ -38,7 +38,7 @@ class StoreController extends Controller
             'name' => 'required|string|max:255',
             'code' => 'required|string|max:255|unique:stores,code',
             'store_category' => 'required|string|in:A,B,C',
-            'address' => 'required|string|max:1000',
+            'address' => 'nullable|string|max:1000',
             'is_active' => 'boolean',
         ]);
 
@@ -60,7 +60,7 @@ class StoreController extends Controller
             'name' => 'required|string|max:255',
             'code' => 'required|string|max:255|unique:stores,code,' . $store->id,
             'store_category' => 'required|string|in:A,B,C',
-            'address' => 'required|string|max:1000',
+            'address' => 'nullable|string|max:1000',
             'is_active' => 'boolean',
         ]);
 

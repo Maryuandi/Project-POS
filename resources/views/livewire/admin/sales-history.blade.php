@@ -16,15 +16,26 @@
         </div>
 
         <div class="flex items-center gap-3">
-            <button type="button"
-                class="inline-flex items-center justify-center px-4 py-2 text-sm font-semibold text-white bg-blue-600 rounded-lg shadow-sm hover:bg-blue-700 transition-colors">
-                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
-                    </path>
-                </svg>
-                Export Data
-            </button>
+            <form id="sales-report-form" method="POST" action="{{ route('admin.sales-history.report') }}" target="_blank"
+                class="inline-flex items-center">
+                @csrf
+                <input type="hidden" name="select_all" value="1" data-select-all-input>
+                <input type="hidden" name="search" value="{{ $search }}">
+                <input type="hidden" name="filterStatus" value="{{ $filterStatus }}">
+                <input type="hidden" name="filterStore" value="{{ $filterStore }}">
+                <input type="hidden" name="filterDate" value="{{ $filterDate }}">
+                <input type="hidden" name="startDate" value="{{ $startDate }}">
+                <input type="hidden" name="endDate" value="{{ $endDate }}">
+                <button type="submit"
+                    class="inline-flex items-center justify-center px-4 py-2 text-sm font-semibold text-white bg-blue-600 rounded-lg shadow-sm hover:bg-blue-700 transition-colors">
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
+                        </path>
+                    </svg>
+                    Export Data
+                </button>
+            </form>
 
             <!-- Notification Bell (Unpaid Installments) -->
             <button type="button" @click="$dispatch('open-reminder-modal')"
@@ -238,6 +249,8 @@
     @include('admin.sales.partials.table', [
         'sales' => $sales,
         'showPagination' => true,
+        'selectionEnabled' => true,
+        'formId' => 'sales-report-form',
     ])
 
     <!-- Alpine.js Reminder Modal -->
@@ -338,3 +351,44 @@
         </div>
     </div>
 </div>
+
+<script>
+    (function () {
+        function initSalesHistorySelection() {
+            var form = document.getElementById('sales-report-form');
+            if (!form) return;
+
+            var selectAllInput = form.querySelector('[data-select-all-input]');
+            var selectAllBox = document.querySelector('[data-select-all]');
+            var rowBoxes = Array.prototype.slice.call(document.querySelectorAll('[data-sale-checkbox]'));
+
+            if (!selectAllInput || !selectAllBox || rowBoxes.length === 0) return;
+
+            function syncSelectAll() {
+                var allChecked = rowBoxes.every(function (checkbox) {
+                    return checkbox.checked;
+                });
+                selectAllBox.checked = allChecked;
+                selectAllInput.value = allChecked ? '1' : '0';
+            }
+
+            selectAllBox.addEventListener('change', function () {
+                rowBoxes.forEach(function (checkbox) {
+                    checkbox.checked = selectAllBox.checked;
+                });
+                selectAllInput.value = selectAllBox.checked ? '1' : '0';
+            });
+
+            rowBoxes.forEach(function (checkbox) {
+                checkbox.addEventListener('change', syncSelectAll);
+            });
+
+            syncSelectAll();
+        }
+
+        document.addEventListener('DOMContentLoaded', initSalesHistorySelection);
+        document.addEventListener('livewire:initialized', initSalesHistorySelection);
+        document.addEventListener('livewire:navigated', initSalesHistorySelection);
+        document.addEventListener('livewire:updated', initSalesHistorySelection);
+    })();
+</script>

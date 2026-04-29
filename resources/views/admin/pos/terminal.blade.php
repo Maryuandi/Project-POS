@@ -456,7 +456,7 @@
 
                                         <!-- QRIS Image -->
                                         <div class="max-w-[400px] mx-auto w-full mb-4">
-                                            <img src="{{ asset('images/qris.png') }}" alt="QRIS VICTORY TOYS"
+                                            <img src="{{ asset('images/qris.png') }}" alt="QRIS DVS JAYA"
                                                 class="w-full rounded-2xl shadow-lg border-2 border-white ring-1 ring-blue-100">
                                         </div>
 
@@ -492,7 +492,7 @@
                                                     class="text-[17px] font-black text-gray-900 tracking-[0.08em] font-mono leading-none mb-1">
                                                     8735 0912 334</p>
                                                 <p class="text-[10px] font-bold text-gray-500 uppercase tracking-wider">A.N
-                                                    Victor</p>
+                                                    DVS Jaya</p>
                                             </div>
                                         </div>
                                         <p class="text-[11px] text-blue-600 mt-3 font-medium flex gap-1.5 leading-snug">

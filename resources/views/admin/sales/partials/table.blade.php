@@ -1,5 +1,7 @@
 @php
     $showPagination = $showPagination ?? true;
+    $selectionEnabled = $selectionEnabled ?? false;
+    $formId = $formId ?? null;
 @endphp
 
 <div class="bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm">
@@ -9,7 +11,9 @@
                 <tr class="bg-gray-50 border-b border-gray-200">
                     <th scope="col" class="w-10 px-3 py-2 text-center border-r border-gray-200">
                         <input type="checkbox"
-                            class="w-3.5 h-3.5 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
+                            class="w-3.5 h-3.5 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                            @if($selectionEnabled) checked data-select-all @endif
+                            @if($selectionEnabled && $formId) form="{{ $formId }}" @endif>
                     </th>
 
                     <th scope="col"
@@ -139,7 +143,9 @@
                         class="hover:bg-gray-50 cursor-default transition-colors group">
                         <td class="px-3 py-2.5 text-center border-r border-gray-200">
                             <input type="checkbox"
-                                class="w-3.5 h-3.5 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
+                                class="w-3.5 h-3.5 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                                @if($selectionEnabled) checked data-sale-checkbox name="sale_ids[]" value="{{ $sale->id }}" @endif
+                                @if($selectionEnabled && $formId) form="{{ $formId }}" @endif>
                         </td>
 
                         <td class="w-px whitespace-nowrap px-3 py-2.5 border-r border-gray-200">

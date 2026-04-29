@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\Admin\SalesDocumentController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -39,6 +40,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/admin/pos', [\App\Http\Controllers\Admin\PosController::class, 'index'])->name('admin.pos.terminal');
     Route::post('/admin/pos/checkout', [\App\Http\Controllers\Admin\PosController::class, 'checkout'])->name('admin.pos.checkout');
     Route::get('/admin/sales-history', \App\Livewire\Admin\SalesHistory::class)->name('admin.sales-history.index');
+    Route::post('/admin/sales-history/report', [SalesDocumentController::class, 'salesHistoryReport'])->name('admin.sales-history.report');
     Route::get('/admin/sales/{id}', \App\Livewire\Admin\Sales\SalesDetail::class)->name('admin.sales.show');
+    Route::get('/admin/sales/{sale}/invoice', [SalesDocumentController::class, 'invoice'])->name('admin.sales.invoice');
     Route::post('/admin/sales/{id}/pay-installment', [\App\Http\Controllers\Admin\PosController::class, 'payInstallment'])->name('admin.sales.pay-installment');
 });

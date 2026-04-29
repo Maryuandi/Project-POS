@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>{{ config('app.name', 'Victory Toys') }}</title>
+    <title>{{ config('app.name', 'DVS Jaya') }}</title>
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -55,7 +55,7 @@
 
             <!-- Footer -->
             <p class="text-center text-xs text-gray-500 mt-6">
-                &copy; {{ date('Y') }} {{ config('app.name', 'Victory Toys') }}. All rights reserved.
+                &copy; {{ date('Y') }} {{ config('app.name', 'DVS Jaya') }}. All rights reserved.
             </p>
         </div>
     </div>
