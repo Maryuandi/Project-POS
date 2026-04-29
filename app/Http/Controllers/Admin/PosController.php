@@ -36,6 +36,15 @@ class PosController extends Controller
             ->orderBy('name')
             ->get(['id', 'name', 'code', 'store_category']);
 
+        $storeGroups = $stores
+            ->groupBy(function ($store) {
+                $name = ltrim((string) $store->name);
+                $firstChar = $name !== '' ? strtoupper(substr($name, 0, 1)) : '#';
+
+                return preg_match('/[A-Z]/', $firstChar) ? $firstChar : '#';
+            })
+            ->sortKeys();
+
         $storeCategories = Store::where('is_active', true)
             ->select('store_category')
             ->distinct()
@@ -48,6 +57,7 @@ class PosController extends Controller
             : null;
 
         $products = collect();
+        $productGroups = collect();
         $search = $request->query('search');
 
         if ($selectedStore) {
@@ -65,9 +75,18 @@ class PosController extends Controller
                 ->alphabetical()
                 ->take(24)
                 ->get();
+
+            $productGroups = $products
+                ->groupBy(function ($product) {
+                    $name = ltrim((string) $product->name);
+                    $firstChar = $name !== '' ? strtoupper(substr($name, 0, 1)) : '#';
+
+                    return preg_match('/[A-Z]/', $firstChar) ? $firstChar : '#';
+                })
+                ->sortKeys();
         }
 
-        return view('admin.pos.terminal', compact('stores', 'storeCategories', 'storeSearch', 'storeCategory', 'selectedStore', 'products', 'search'));
+        return view('admin.pos.terminal', compact('stores', 'storeGroups', 'storeCategories', 'storeSearch', 'storeCategory', 'selectedStore', 'products', 'productGroups', 'search'));
     }
 
     public function checkout(Request $request)

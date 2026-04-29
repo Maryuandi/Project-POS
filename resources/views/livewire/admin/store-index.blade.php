@@ -145,7 +145,7 @@
                             </td>
                         </tr>
                         @foreach ($groupStores as $store)
-                            <tr x-show="open" wire:key="store-row-{{ $store->id }}"
+                            <tr x-show="open" x-cloak wire:key="store-row-{{ $store->id }}"
                                 class="hover:bg-gray-50 cursor-default transition-colors group">
                                 <td class="px-3 py-2.5 text-center border-r border-gray-200">
                                     <input type="checkbox"

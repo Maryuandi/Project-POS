@@ -75,11 +75,21 @@ class ProductIndex extends Component
             ->when($this->filterStatus === 'out_of_stock', function ($query) {
                 $query->where('stock', 0);
             })
-            ->latest()
+            ->alphabetical()
             ->paginate(20);
+
+        $productGroups = $products->getCollection()
+            ->groupBy(function ($product) {
+                $name = ltrim((string) $product->name);
+                $firstChar = $name !== '' ? strtoupper(substr($name, 0, 1)) : '#';
+
+                return preg_match('/[A-Z]/', $firstChar) ? $firstChar : '#';
+            })
+            ->sortKeys();
 
         return view('livewire.admin.product-index', [
             'products' => $products,
+            'productGroups' => $productGroups,
             'unpaidInstallments' => \App\Models\Sale::with('cashier')->where('status', 'installment')->orderByDesc('created_at')->get(),
         ]);
     }

@@ -75,7 +75,7 @@
                                     d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z">
                                 </path>
                             </svg>
-                            <span>Total Belanja</span>
+                            <span>Total Penjualan</span>
                         </div>
                     </th>
 
@@ -202,9 +202,18 @@
                         </td>
 
                         <td class="w-px whitespace-nowrap px-3 py-2.5 border-r border-gray-200 text-center">
+                            @php
+                                $paymentMethod = strtolower($sale->payment_method ?? 'cash');
+                                $paymentClass = match ($paymentMethod) {
+                                    'cash' => 'bg-emerald-50 text-emerald-700 border-emerald-100',
+                                    'qris' => 'bg-blue-50 text-blue-700 border-blue-100',
+                                    'transfer' => 'bg-amber-50 text-amber-700 border-amber-100',
+                                    default => 'bg-gray-50 text-gray-700 border-gray-200',
+                                };
+                            @endphp
                             <span
-                                class="inline-flex items-center px-2 py-1 rounded text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-100 shadow-sm leading-none">
-                                {{ ucfirst($sale->payment_method ?? 'Cash') }}
+                                class="inline-flex items-center px-2 py-1 rounded text-[11px] font-semibold {{ $paymentClass }} shadow-sm leading-none">
+                                {{ ucfirst($paymentMethod) }}
                             </span>
                         </td>
 

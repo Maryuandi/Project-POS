@@ -47,21 +47,18 @@
         <!-- Hidden input for Status to persist tab state -->
         <input type="hidden" name="filterStatus" value="{{ $filterStatus }}">
 
-        <!-- Left: Search input -->
-        <div class="relative w-full xl:w-[320px]">
-            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <svg class="h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+        <div class="flex w-full xl:w-auto flex-col sm:flex-row items-stretch sm:items-center gap-2">
+            <div class="relative w-full sm:w-[320px]">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <svg class="h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+                </div>
+                <input type="text" name="search" value="{{ $search }}"
+                    class="block w-full pl-9 pr-3 py-2 border border-gray-300 rounded-lg text-sm bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-colors shadow-sm"
+                    placeholder="Cari Produk...">
             </div>
-            <input type="text" name="search" value="{{ $search }}"
-                class="block w-full pl-9 pr-3 py-2 border border-gray-300 rounded-lg text-sm bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-colors shadow-sm"
-                placeholder="Cari Produk...">
-        </div>
 
-        <!-- Right: Filters dropdowns -->
-        <div class="flex flex-wrap items-center gap-2 w-full xl:w-auto">
-            <!-- Reset Button (Enhanced) -->
             <a href="{{ request()->url() }}?filterStatus={{ $filterStatus }}"
-                class="inline-flex items-center gap-2 px-3 py-2 border border-gray-200 bg-white rounded-lg text-gray-500 hover:text-red-600 hover:border-red-100 hover:bg-red-50 transition-all shadow-sm text-[13px] font-medium shrink-0" title="Clear Filters">
+                class="inline-flex items-center justify-center gap-2 px-3 py-2 border border-gray-200 bg-white rounded-lg text-gray-500 hover:text-red-600 hover:border-red-100 hover:bg-red-50 transition-all shadow-sm text-[13px] font-medium shrink-0" title="Clear Filters">
                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path></svg>
                 <span>Clear</span>
             </a>
@@ -124,85 +121,104 @@
                         </th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-gray-200 bg-white">
-                    @forelse ($products as $product)
-                        <tr wire:key="product-row-{{ $product->id }}" class="hover:bg-gray-50 cursor-default transition-colors group">
-
-                            <!-- Checkbox -->
-                            <td class="px-3 py-2.5 text-center border-r border-gray-200">
-                                <input type="checkbox" class="w-3.5 h-3.5 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
-                            </td>
-
-                            <!-- Nama Mainan -->
-                            <td class="px-3 py-2.5 border-r border-gray-200">
-                                <span class="text-[13px] font-semibold text-gray-900 truncate block max-w-[180px]">{{ $product->name }}</span>
-                            </td>
-
-                            <!-- Status -->
-                            <td class="w-px whitespace-nowrap px-3 py-2.5 border-r border-gray-200">
-                                @php
-                                    $totalStock = $product->stock ?? 0;
-                                    $statusClass = 'bg-emerald-50 text-emerald-700 border-emerald-100';
-                                    $statusLabel = 'Available';
-
-                                    if ($totalStock == 0) {
-                                        $statusClass = 'bg-red-50 text-red-700 border-red-100';
-                                        $statusLabel = 'Out of Stock';
-                                    } elseif ($totalStock <= 10) {
-                                        $statusClass = 'bg-amber-50 text-amber-700 border-amber-100';
-                                        $statusLabel = 'Low Stock';
-                                    }
-                                @endphp
-                                <span class="inline-flex items-center px-2 py-1 rounded text-[11px] font-semibold border {{ $statusClass }} shadow-sm leading-none">
-                                    {{ $statusLabel }}
-                                </span>
-                            </td>
-
-                            <!-- Jumlah Stok -->
-                            <td class="w-px whitespace-nowrap px-3 py-2.5 border-r border-gray-200 font-mono text-[13px] {{ ($product->stock ?? 0) <= 10 ? 'text-red-600 font-bold' : 'text-gray-900 font-medium' }}">
-                                {{ number_format($product->stock ?? 0) }} Pcs
-                            </td>
-
-                            <!-- Harga Beli -->
-                            <td class="w-px whitespace-nowrap px-3 py-2.5 border-r border-gray-200">
-                                <div class="flex items-center gap-1.5 font-mono">
-                                    <span class="text-[10px] text-gray-400 font-sans">Rp</span>
-                                    <span class="text-[13px] text-gray-700 font-medium">{{ number_format($product->cost ?? 0, 0, ',', '.') }}</span>
-                                </div>
-                            </td>
-
-                            <!-- Distributor -->
-                            <td class="w-px whitespace-nowrap px-3 py-2.5 border-r border-gray-200">
-                                <span class="text-[13px] text-gray-600 font-medium truncate inline-block max-w-[120px]">{{ $product->distributor ?? '-' }}</span>
-                            </td>
-
-                            <!-- Actions -->
-                            <td class="px-3 py-2.5 text-center w-32 whitespace-nowrap border-l border-gray-100">
-                                <div class="flex items-center justify-center gap-1.5">
-                                    <a href="{{ route('admin.products.show', $product->id) }}" wire:navigate title="View Detail"
-                                        class="inline-flex items-center justify-center w-7 h-7 bg-white border border-gray-200 rounded-lg shadow-sm text-slate-400 hover:text-blue-600 hover:border-blue-200 hover:bg-blue-50 transition-all focus:outline-none">
-                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z">
-                                            </path>
-                                        </svg>
-                                    </a>
-                                    <a href="{{ route('admin.products.edit', $product->id) }}" wire:navigate title="Edit"
-                                        class="inline-flex items-center justify-center w-7 h-7 bg-white border border-gray-200 rounded-lg shadow-sm text-slate-400 hover:text-blue-600 hover:border-blue-200 hover:bg-blue-50 transition-all focus:outline-none">
-                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
-                                    </a>
-                                    <button type="button"
-                                        @click="$dispatch('open-delete-modal', { name: '{{ addslashes($product->name) }}', url: '{{ route('admin.products.destroy', $product->id) }}' })"
-                                        title="Delete"
-                                            class="inline-flex items-center justify-center w-7 h-7 bg-white border border-gray-200 rounded-lg shadow-sm text-slate-400 hover:text-red-600 hover:border-red-200 hover:bg-red-50 transition-all focus:outline-none">
-                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
-                                        </button>
-                                </div>
+                @forelse ($productGroups as $letter => $groupProducts)
+                    <tbody x-data="{ open: true }" class="divide-y divide-gray-200 bg-white">
+                        <tr class="bg-gray-50/80">
+                            <td colspan="7" class="px-3 py-2">
+                                <button type="button"
+                                    class="flex w-full items-center justify-between text-xs font-semibold text-gray-600 uppercase tracking-widest"
+                                    @click="open = !open" x-bind:aria-expanded="open">
+                                    <span>{{ $letter }}</span>
+                                    <svg class="h-4 w-4 text-gray-400 transition-transform" fill="none"
+                                        viewBox="0 0 24 24" stroke="currentColor"
+                                        x-bind:class="open ? 'rotate-180' : ''">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M19 9l-7 7-7-7" />
+                                    </svg>
+                                </button>
                             </td>
                         </tr>
-                    @empty
+                        @foreach ($groupProducts as $product)
+                            <tr x-show="open" x-cloak wire:key="product-row-{{ $product->id }}" class="hover:bg-gray-50 cursor-default transition-colors group">
+
+                                <!-- Checkbox -->
+                                <td class="px-3 py-2.5 text-center border-r border-gray-200">
+                                    <input type="checkbox" class="w-3.5 h-3.5 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
+                                </td>
+
+                                <!-- Nama Mainan -->
+                                <td class="px-3 py-2.5 border-r border-gray-200">
+                                    <span class="text-[13px] font-semibold text-gray-900 truncate block max-w-[180px]">{{ $product->name }}</span>
+                                </td>
+
+                                <!-- Status -->
+                                <td class="w-px whitespace-nowrap px-3 py-2.5 border-r border-gray-200">
+                                    @php
+                                        $totalStock = $product->stock ?? 0;
+                                        $statusClass = 'bg-emerald-50 text-emerald-700 border-emerald-100';
+                                        $statusLabel = 'Available';
+
+                                        if ($totalStock == 0) {
+                                            $statusClass = 'bg-red-50 text-red-700 border-red-100';
+                                            $statusLabel = 'Out of Stock';
+                                        } elseif ($totalStock <= 10) {
+                                            $statusClass = 'bg-amber-50 text-amber-700 border-amber-100';
+                                            $statusLabel = 'Low Stock';
+                                        }
+                                    @endphp
+                                    <span class="inline-flex items-center px-2 py-1 rounded text-[11px] font-semibold border {{ $statusClass }} shadow-sm leading-none">
+                                        {{ $statusLabel }}
+                                    </span>
+                                </td>
+
+                                <!-- Jumlah Stok -->
+                                <td class="w-px whitespace-nowrap px-3 py-2.5 border-r border-gray-200 font-mono text-[13px] {{ ($product->stock ?? 0) <= 10 ? 'text-red-600 font-bold' : 'text-gray-900 font-medium' }}">
+                                    {{ number_format($product->stock ?? 0) }} Pcs
+                                </td>
+
+                                <!-- Harga Beli -->
+                                <td class="w-px whitespace-nowrap px-3 py-2.5 border-r border-gray-200">
+                                    <div class="flex items-center gap-1.5 font-mono">
+                                        <span class="text-[10px] text-gray-400 font-sans">Rp</span>
+                                        <span class="text-[13px] text-gray-700 font-medium">{{ number_format($product->cost ?? 0, 0, ',', '.') }}</span>
+                                    </div>
+                                </td>
+
+                                <!-- Distributor -->
+                                <td class="w-px whitespace-nowrap px-3 py-2.5 border-r border-gray-200">
+                                    <span class="text-[13px] text-gray-600 font-medium truncate inline-block max-w-[120px]">{{ $product->distributor ?? '-' }}</span>
+                                </td>
+
+                                <!-- Actions -->
+                                <td class="px-3 py-2.5 text-center w-32 whitespace-nowrap border-l border-gray-100">
+                                    <div class="flex items-center justify-center gap-1.5">
+                                        <a href="{{ route('admin.products.show', $product->id) }}" wire:navigate title="View Detail"
+                                            class="inline-flex items-center justify-center w-7 h-7 bg-white border border-gray-200 rounded-lg shadow-sm text-slate-400 hover:text-blue-600 hover:border-blue-200 hover:bg-blue-50 transition-all focus:outline-none">
+                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z">
+                                                </path>
+                                            </svg>
+                                        </a>
+                                        <a href="{{ route('admin.products.edit', $product->id) }}" wire:navigate title="Edit"
+                                            class="inline-flex items-center justify-center w-7 h-7 bg-white border border-gray-200 rounded-lg shadow-sm text-slate-400 hover:text-blue-600 hover:border-blue-200 hover:bg-blue-50 transition-all focus:outline-none">
+                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
+                                        </a>
+                                        <button type="button"
+                                            @click="$dispatch('open-delete-modal', { name: '{{ addslashes($product->name) }}', url: '{{ route('admin.products.destroy', $product->id) }}' })"
+                                            title="Delete"
+                                                class="inline-flex items-center justify-center w-7 h-7 bg-white border border-gray-200 rounded-lg shadow-sm text-slate-400 hover:text-red-600 hover:border-red-200 hover:bg-red-50 transition-all focus:outline-none">
+                                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                                            </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                @empty
+                    <tbody class="divide-y divide-gray-200 bg-white">
                         <tr>
                             <td colspan="7" class="px-3 py-10 text-center">
                                 <svg class="mx-auto h-8 w-8 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -212,8 +228,8 @@
                                 <p class="mt-1 text-xs text-gray-500">The grid is currently empty.</p>
                             </td>
                         </tr>
-                    @endforelse
-                </tbody>
+                    </tbody>
+                @endforelse
             </table>
         </div>
     </div>

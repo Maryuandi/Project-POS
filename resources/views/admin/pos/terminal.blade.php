@@ -116,30 +116,49 @@
                                         <th class="px-4 py-3 text-[11px] font-bold text-gray-500 uppercase tracking-wider text-right">Action</th>
                                     </tr>
                                 </thead>
-                                <tbody class="divide-y divide-gray-200 bg-white">
-                                    @forelse($stores as $store)
-                                        <tr class="hover:bg-gray-50 transition-colors">
-                                            <td class="px-4 py-3">
-                                                <span class="inline-flex items-center px-2.5 py-1 rounded-md text-[11px] font-mono font-semibold text-gray-600 bg-gray-100 border border-gray-200">
-                                                    {{ $store->code }}
-                                                </span>
-                                            </td>
-                                            <td class="px-4 py-3">
-                                                <span class="text-[14px] font-semibold text-gray-900">{{ $store->name }}</span>
-                                            </td>
-                                            <td class="px-4 py-3">
-                                                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-semibold bg-blue-50 text-blue-700 border border-blue-100">
-                                                    {{ $store->store_category }}
-                                                </span>
-                                            </td>
-                                            <td class="px-4 py-3 text-right">
-                                                <a href="{{ route('admin.pos.terminal', ['store' => $store->id]) }}"
-                                                    class="inline-flex items-center justify-center px-3 py-2 text-[13px] font-semibold text-blue-700 bg-blue-50 border border-blue-100 rounded-lg hover:bg-blue-100 transition-colors">
-                                                    Pilih Store
-                                                </a>
+                                @forelse($storeGroups as $letter => $groupStores)
+                                    <tbody x-data="{ open: true }" class="divide-y divide-gray-200 bg-white">
+                                        <tr class="bg-gray-50/80">
+                                            <td colspan="4" class="px-4 py-2">
+                                                <button type="button"
+                                                    class="flex w-full items-center justify-between text-xs font-semibold text-gray-600 uppercase tracking-widest"
+                                                    @click="open = !open" x-bind:aria-expanded="open">
+                                                    <span>{{ $letter }}</span>
+                                                    <svg class="h-4 w-4 text-gray-400 transition-transform" fill="none"
+                                                        viewBox="0 0 24 24" stroke="currentColor"
+                                                        x-bind:class="open ? 'rotate-180' : ''">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                            d="M19 9l-7 7-7-7" />
+                                                    </svg>
+                                                </button>
                                             </td>
                                         </tr>
-                                    @empty
+                                        @foreach($groupStores as $store)
+                                            <tr x-show="open" x-cloak class="hover:bg-gray-50 transition-colors">
+                                                <td class="px-4 py-3">
+                                                    <span class="inline-flex items-center px-2.5 py-1 rounded-md text-[11px] font-mono font-semibold text-gray-600 bg-gray-100 border border-gray-200">
+                                                        {{ $store->code }}
+                                                    </span>
+                                                </td>
+                                                <td class="px-4 py-3">
+                                                    <span class="text-[14px] font-semibold text-gray-900">{{ $store->name }}</span>
+                                                </td>
+                                                <td class="px-4 py-3">
+                                                    <span class="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-semibold bg-blue-50 text-blue-700 border border-blue-100">
+                                                        {{ $store->store_category }}
+                                                    </span>
+                                                </td>
+                                                <td class="px-4 py-3 text-right">
+                                                    <a href="{{ route('admin.pos.terminal', ['store' => $store->id]) }}"
+                                                        class="inline-flex items-center justify-center px-3 py-2 text-[13px] font-semibold text-blue-700 bg-blue-50 border border-blue-100 rounded-lg hover:bg-blue-100 transition-colors">
+                                                        Pilih Store
+                                                    </a>
+                                                </td>
+                                            </tr>
+                                        @endforeach
+                                    </tbody>
+                                @empty
+                                    <tbody class="divide-y divide-gray-200 bg-white">
                                         <tr>
                                             <td colspan="4" class="px-4 py-10 text-center">
                                                 <svg class="mx-auto h-8 w-8 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -149,8 +168,8 @@
                                                 <p class="mt-1 text-xs text-gray-500">Aktifkan store terlebih dahulu sebelum membuat transaksi POS.</p>
                                             </td>
                                         </tr>
-                                    @endforelse
-                                </tbody>
+                                    </tbody>
+                                @endforelse
                             </table>
                         </div>
                     </div>
@@ -179,7 +198,7 @@
                             @endif
                         </div>
                         <button type="button" @click="requestStoreChange()"
-                            class="inline-flex items-center justify-center px-4 py-3 text-sm font-semibold text-gray-700 bg-white border border-gray-300 rounded-xl shadow-sm hover:bg-gray-50 transition-colors whitespace-nowrap">
+                            class="inline-flex items-center justify-center px-4 py-3 text-sm font-semibold text-blue-500 bg-white border border-blue-700 rounded-xl shadow-sm hover:bg-blue-100 transition-colors whitespace-nowrap">
                             Ganti Store
                         </button>
                     </div>
@@ -204,46 +223,63 @@
                                         <th class="px-4 py-3 text-[11px] font-bold text-gray-500 uppercase tracking-wider sm:w-auto min-w-[100px]">Kode</th>
                                         <th class="px-4 py-3 text-[11px] font-bold text-gray-500 uppercase tracking-wider sm:w-auto min-w-[140px]">Produk</th>
                                         <th class="px-4 py-3 text-[11px] font-bold text-gray-500 uppercase tracking-wider text-center sm:w-auto min-w-[140px]">Stok</th>
-                                        <th class="px-4 py-3 text-[11px] font-bold text-gray-500 uppercase tracking-wider sm:w-auto min-w-[140px]">Harga Beli</th>
+                                        <th class="px-4 py-3 text-[11px] font-bold text-gray-500 uppercase tracking-wider sm:w-auto min-w-[140px]">Harga Modal</th>
                                         <th class="px-4 py-3 text-[11px] font-bold text-gray-500 uppercase tracking-wider sm:w-auto min-w-[140px]">Distributor</th>
                                     </tr>
                                 </thead>
-                                <tbody class="divide-y divide-gray-200 bg-white">
-                                    @foreach($products as $product)
-                                        <tr @click="addToCart({{ json_encode($product) }})"
-                                            class="hover:bg-blue-50/50 transition-colors cursor-pointer select-none">
-                                            <td class="px-4 py-3">
-                                                <span class="inline-flex items-center px-2 py-1 rounded text-[11px] font-medium bg-gray-100 text-gray-700 border border-gray-200/50 shadow-sm leading-none">
-                                                    {{ $product->code }}
-                                                </span>
-                                            </td>
-                                            <td class="px-4 py-3">
-                                                <p class="text-[13px] font-semibold text-gray-900 leading-none truncate block max-w-[140px]">{{ $product->name }}</p>
-                                            </td>
-                                            <td class="px-4 py-3 text-center">
-                                                @if($product->stock <= 0)
-                                                    <span
-                                                        class="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-bold border bg-red-50 text-red-700 border-red-200 shadow-sm leading-none uppercase">Habis</span>
-                                                @elseif($product->stock <= 10)
-                                                    <span
-                                                        class="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-bold bg-amber-100/90 text-amber-800 border border-amber-200 shadow-sm leading-none">Sisa
-                                                        {{ $product->stock }}</span>
-                                                @else
-                                                    <span
-                                                        class="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-100 shadow-sm leading-none">
-                                                        {{ $product->stock }} pcs
-                                                    </span>
-                                                @endif
-                                            </td>
-                                            <td class="px-4 py-3">
-                                                <span class="text-[13px] font-bold text-gray-900">Rp {{ number_format((float) $product->cost, 0, ',', '.') }}</span>
-                                            </td>
-                                            <td class="px-4 py-3">
-                                                <p class="text-[13px] text-gray-500 font-medium">{{ $product->distributor ?: 'Tanpa distributor' }}</p>
+                                @foreach($productGroups as $letter => $groupProducts)
+                                    <tbody x-data="{ open: true }" class="divide-y divide-gray-200 bg-white">
+                                        <tr class="bg-gray-50/80">
+                                            <td colspan="5" class="px-4 py-2">
+                                                <button type="button"
+                                                    class="flex w-full items-center justify-between text-xs font-semibold text-gray-600 uppercase tracking-widest"
+                                                    @click="open = !open" x-bind:aria-expanded="open">
+                                                    <span>{{ $letter }}</span>
+                                                    <svg class="h-4 w-4 text-gray-400 transition-transform" fill="none"
+                                                        viewBox="0 0 24 24" stroke="currentColor"
+                                                        x-bind:class="open ? 'rotate-180' : ''">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                            d="M19 9l-7 7-7-7" />
+                                                    </svg>
+                                                </button>
                                             </td>
                                         </tr>
-                                    @endforeach
-                                </tbody>
+                                        @foreach($groupProducts as $product)
+                                            <tr x-show="open" x-cloak @click="addToCart({{ json_encode($product) }})"
+                                                class="hover:bg-blue-50/50 transition-colors cursor-pointer select-none">
+                                                <td class="px-4 py-3">
+                                                    <span class="inline-flex items-center px-2 py-1 rounded text-[11px] font-medium bg-gray-100 text-gray-700 border border-gray-200/50 shadow-sm leading-none">
+                                                        {{ $product->code }}
+                                                    </span>
+                                                </td>
+                                                <td class="px-4 py-3">
+                                                    <p class="text-[13px] font-semibold text-gray-900 leading-none truncate block max-w-[140px]">{{ $product->name }}</p>
+                                                </td>
+                                                <td class="px-4 py-3 text-center">
+                                                    @if($product->stock <= 0)
+                                                        <span
+                                                            class="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-bold border bg-red-50 text-red-700 border-red-200 shadow-sm leading-none uppercase">Habis</span>
+                                                    @elseif($product->stock <= 10)
+                                                        <span
+                                                            class="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-bold bg-amber-100/90 text-amber-800 border border-amber-200 shadow-sm leading-none">Sisa
+                                                            {{ $product->stock }}</span>
+                                                    @else
+                                                        <span
+                                                            class="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-100 shadow-sm leading-none">
+                                                            {{ $product->stock }} pcs
+                                                        </span>
+                                                    @endif
+                                                </td>
+                                                <td class="px-4 py-3">
+                                                    <span class="text-[13px] font-bold text-gray-900">Rp {{ number_format((float) $product->cost, 0, ',', '.') }}</span>
+                                                </td>
+                                                <td class="px-4 py-3">
+                                                    <p class="text-[13px] text-gray-500 font-medium">{{ $product->distributor ?: 'Tanpa distributor' }}</p>
+                                                </td>
+                                            </tr>
+                                        @endforeach
+                                    </tbody>
+                                @endforeach
                             </table>
                         </div>
                     </div>
@@ -303,7 +339,7 @@
                             <div class="flex justify-between items-start gap-2 pr-4">
                                 <div class="pr-2">
                                     <span class="text-[13px] font-medium text-gray-900 leading-tight block" x-text="item.name"></span>
-                                    <span class="text-[11px] text-gray-500" x-text="'Harga Beli: Rp ' + formatNumber(Number(item.cost || 0))"></span>
+                                    <span class="text-[11px] text-gray-500" x-text="'Harga Modal: Rp ' + formatNumber(Number(item.cost || 0))"></span>
                                 </div>
                                 <button @click="removeFromCart(index)"
                                     class="absolute top-3 right-3 text-gray-400 hover:text-red-600">
@@ -354,7 +390,7 @@
                     class="border-t border-gray-100 bg-white p-4 rounded-b-xl shrink-0 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.02)]">
                     <div class="space-y-1.5 mb-4">
                         <div class="flex justify-between items-center text-[13px] text-gray-500">
-                            <span>Total Harga Beli</span>
+                            <span>Total Modal</span>
                             <span class="font-medium text-gray-900" x-text="'Rp ' + formatNumber(totalCapital)"></span>
                         </div>
                         <div class="flex justify-between items-center text-[13px] text-gray-500">
