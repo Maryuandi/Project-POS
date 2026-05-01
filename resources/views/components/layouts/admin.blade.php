@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>{{ $title ?? config('app.name', 'Victory Toys') }}</title>
+    <title>{{ $title ?? config('app.name', 'DVS Jaya') }}</title>
 
     <!-- Google Fonts: Inter -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -48,7 +48,7 @@
                     <div x-show="sidebarExpanded" class="flex w-full items-center justify-between gap-x-2 truncate">
                         <div class="truncate text-left">
                             <p class="truncate whitespace-nowrap text-[14px] font-medium text-gray-900 tracking-tight">
-                                {{ config('app.name', 'Victory Toys') }}
+                                {{ config('app.name', 'DVS Jaya') }}
                             </p>
                             <p
                                 class="text-left text-[12px] text-gray-400 font-medium tracking-normal leading-none mt-1">
@@ -65,7 +65,7 @@
                 <!-- Top Level -->
                 <div class="space-y-1">
                     <a href="{{ route('dashboard') }}" wire:navigate
-                        class="group flex items-center py-1.5 text-[14px] font-medium transition-all duration-200 border 
+                        class="group flex items-center py-1.5 text-[14px] font-medium transition-all duration-200 border
                               {{ request()->routeIs('dashboard') ? 'bg-white text-blue-700 border-gray-200 shadow-sm rounded-lg' : 'text-gray-600 hover:bg-gray-100 rounded-lg border-transparent' }}"
                         :class="sidebarExpanded ? 'px-2.5 justify-start' : 'px-0 justify-center'" title="Dashboard">
                         <svg class="w-[18px] h-[18px] shrink-0 {{ request()->routeIs('dashboard') ? 'text-blue-600' : 'text-gray-400 group-hover:text-gray-400' }}"
@@ -86,23 +86,23 @@
                         <div class="w-5 border-b-2 border-gray-200" title="Master Data"></div>
                     </div>
                     <div class="space-y-1">
-                        <a href="/admin/categories" wire:navigate
-                            class="group flex items-center py-1.5 text-[14px] font-medium transition-all duration-200 border 
-                                  {{ request()->is('admin/categories*') ? 'bg-white text-blue-700 border-gray-200 shadow-sm rounded-lg' : 'text-gray-600 hover:bg-gray-100  rounded-lg border-transparent' }}"
+                        <a href="/admin/stores" wire:navigate
+                            class="group flex items-center py-1.5 text-[14px] font-medium transition-all duration-200 border
+                                  {{ request()->is('admin/stores*') ? 'bg-white text-blue-700 border-gray-200 shadow-sm rounded-lg' : 'text-gray-600 hover:bg-gray-100  rounded-lg border-transparent' }}"
                             :class="sidebarExpanded ? 'px-2.5 justify-start' : 'px-0 justify-center'"
-                            title="Categories">
-                            <svg class="w-[18px] h-[18px] shrink-0 {{ request()->is('admin/categories*') ? 'text-blue-600' : 'text-gray-400 group-hover:text-gray-400' }}"
+                            title="Store">
+                            <svg class="w-[18px] h-[18px] shrink-0 {{ request()->is('admin/stores*') ? 'text-blue-600' : 'text-gray-400 group-hover:text-gray-400' }}"
                                 :class="sidebarExpanded ? 'mr-3' : 'mr-0'" fill="none" stroke="currentColor"
                                 viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z">
                                 </path>
                             </svg>
-                            <span x-show="sidebarExpanded" class="truncate">Categories</span>
+                            <span x-show="sidebarExpanded" class="truncate">Store</span>
                         </a>
 
                         <a href="/admin/products" wire:navigate
-                            class="group flex items-center py-1.5 text-[14px] font-medium transition-all duration-200 border 
+                            class="group flex items-center py-1.5 text-[14px] font-medium transition-all duration-200 border
                                   {{ request()->is('admin/products*') ? 'bg-white text-blue-700 border-gray-200 shadow-sm rounded-lg' : 'text-gray-600 hover:bg-gray-100  rounded-lg border-transparent' }}"
                             :class="sidebarExpanded ? 'px-2.5 justify-start' : 'px-0 justify-center'" title="Products">
                             <svg class="w-[18px] h-[18px] shrink-0 {{ request()->is('admin/products*') ? 'text-blue-600' : 'text-gray-400 group-hover:text-gray-400' }}"
@@ -125,7 +125,7 @@
                     </div>
                     <div class="space-y-1">
                         <a href="{{ route('admin.pos.terminal') }}" wire:navigate
-                            class="group flex items-center py-1.5 text-[14px] font-medium transition-all duration-200 border 
+                            class="group flex items-center py-1.5 text-[14px] font-medium transition-all duration-200 border
                                   {{ request()->routeIs('admin.pos.terminal') ? 'bg-white text-blue-700 border-gray-200 shadow-sm rounded-lg' : 'text-gray-600 border-transparent hover:bg-gray-100 rounded-lg' }}"
                             :class="sidebarExpanded ? 'px-2.5 justify-start' : 'px-0 justify-center'"
                             title="Point of Sale">
@@ -232,7 +232,7 @@
                             d="M4 6h16M4 12h16M4 18h16"></path>
                     </svg>
                 </button>
-                <div class="ml-4 font-semibold text-gray-900">Victory Toys</div>
+                <div class="ml-4 font-semibold text-gray-900">DVS Jaya</div>
             </header>
 
             <div class="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8">

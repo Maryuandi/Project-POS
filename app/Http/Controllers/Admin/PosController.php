@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Product;
 use App\Models\Sale;
 use App\Models\SaleItem;
+use App\Models\Store;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
@@ -15,33 +16,91 @@ class PosController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Product::with('category')->where('is_active', true);
+        $storeSearch = trim((string) $request->query('store_search', ''));
+        $storeCategory = (string) $request->query('store_category', '');
 
-        $search = $request->query('search');
-        if ($search) {
-            $query->where(function ($q) use ($search) {
-                $q->whereRaw('LOWER(name) LIKE ?', ['%' . strtolower($search) . '%'])
-                    ->orWhereRaw('LOWER(code) LIKE ?', ['%' . strtolower($search) . '%'])
-                    ->orWhereRaw('LOWER(distributor) LIKE ?', ['%' . strtolower($search) . '%'])
-                    ->orWhereHas('category', function ($qc) use ($search) {
-                        $qc->whereRaw('LOWER(name) LIKE ?', ['%' . strtolower($search) . '%']);
-                    });
+        $storesQuery = Store::where('is_active', true);
+
+        if ($storeSearch !== '') {
+            $storesQuery->where(function ($q) use ($storeSearch) {
+                $q->whereRaw('LOWER(name) LIKE ?', ['%' . strtolower($storeSearch) . '%'])
+                    ->orWhereRaw('LOWER(code) LIKE ?', ['%' . strtolower($storeSearch) . '%']);
             });
         }
 
-        $products = $query->take(24)->get();
+        if ($storeCategory !== '') {
+            $storesQuery->where('store_category', $storeCategory);
+        }
 
-        return view('admin.pos.terminal', compact('products', 'search'));
+        $stores = $storesQuery
+            ->orderBy('name')
+            ->get(['id', 'name', 'code', 'store_category']);
+
+        $storeGroups = $stores
+            ->groupBy(function ($store) {
+                $name = ltrim((string) $store->name);
+                $firstChar = $name !== '' ? strtoupper(substr($name, 0, 1)) : '#';
+
+                return preg_match('/[A-Z]/', $firstChar) ? $firstChar : '#';
+            })
+            ->sortKeys();
+
+        $storeCategories = Store::where('is_active', true)
+            ->select('store_category')
+            ->distinct()
+            ->orderBy('store_category')
+            ->pluck('store_category');
+
+        $selectedStoreId = $request->integer('store');
+        $selectedStore = $selectedStoreId > 0
+            ? Store::where('is_active', true)->select('id', 'name', 'code', 'store_category')->find($selectedStoreId)
+            : null;
+
+        $products = collect();
+        $productGroups = collect();
+        $search = $request->query('search');
+
+        if ($selectedStore) {
+            $query = Product::where('is_active', true);
+
+            if ($search) {
+                $query->where(function ($q) use ($search) {
+                    $q->whereRaw('LOWER(name) LIKE ?', ['%' . strtolower($search) . '%'])
+                        ->orWhereRaw('LOWER(code) LIKE ?', ['%' . strtolower($search) . '%'])
+                        ->orWhereRaw('LOWER(distributor) LIKE ?', ['%' . strtolower($search) . '%']);
+                });
+            }
+
+            $products = $query
+                ->alphabetical()
+                ->take(24)
+                ->get();
+
+            $productGroups = $products
+                ->groupBy(function ($product) {
+                    $name = ltrim((string) $product->name);
+                    $firstChar = $name !== '' ? strtoupper(substr($name, 0, 1)) : '#';
+
+                    return preg_match('/[A-Z]/', $firstChar) ? $firstChar : '#';
+                })
+                ->sortKeys();
+        }
+
+        return view('admin.pos.terminal', compact('stores', 'storeGroups', 'storeCategories', 'storeSearch', 'storeCategory', 'selectedStore', 'products', 'productGroups', 'search'));
     }
 
     public function checkout(Request $request)
     {
         $request->validate([
-            'cart' => 'required|array',
+            'store_id' => 'required|exists:stores,id',
+            'cart' => 'required|array|min:1',
+            'cart.*.id' => 'required|integer|exists:products,id',
+            'cart.*.qty' => 'required|integer|min:1',
+            'cart.*.price' => 'required|numeric|min:0.01',
             'payment_method' => 'required|string',
             'amount_received' => 'required|numeric',
             'is_installment' => 'sometimes|boolean',
-            'down_payment' => 'exclude_unless:is_installment,true|required|numeric|min:1',
+            'down_payment' => 'exclude_unless:is_installment,true|required|numeric|min:0',
             'due_date' => 'exclude_unless:is_installment,true|required|date|after_or_equal:today',
         ]);
 
@@ -51,25 +110,28 @@ class PosController extends Controller
         $isInstallment = $request->boolean('is_installment', false);
         $downPayment = $request->input('down_payment', 0);
         $dueDate = $request->input('due_date');
+        $storeId = $request->integer('store_id');
 
         $totalAmount = 0;
         $itemsToProcess = [];
 
         foreach ($cart as $item) {
             $product = Product::find($item['id']);
+            $qty = (int) $item['qty'];
+            $unitPrice = (float) $item['price'];
 
-            if (!$product || $product->stock < $item['qty']) {
+            if (!$product || $product->stock < $qty) {
                 session()->flash('error', 'Stok tidak mencukupi untuk ' . ($product ? $product->name : 'produk tidak ditemukan') . '.');
                 return response()->json(['message' => 'Stock insufficient'], 400);
             }
 
-            $subtotal = $product->price * $item['qty'];
+            $subtotal = $unitPrice * $qty;
             $totalAmount += $subtotal;
 
             $itemsToProcess[] = [
                 'product_id' => $product->id,
-                'quantity' => $item['qty'],
-                'unit_price' => $product->price,
+                'quantity' => $qty,
+                'unit_price' => $unitPrice,
                 'subtotal' => $subtotal,
             ];
         }
@@ -81,12 +143,12 @@ class PosController extends Controller
         }
 
         // Validation for installment
-        if ($isInstallment && ($downPayment <= 0 || $downPayment > $totalAmount)) {
-            return response()->json(['message' => 'Down payment harus antara 1 dan total belanja'], 400);
+        if ($isInstallment && ($downPayment < 0 || $downPayment > $totalAmount)) {
+            return response()->json(['message' => 'Down payment harus antara 0 dan total belanja'], 400);
         }
 
         try {
-            DB::transaction(function () use ($totalAmount, $paymentMethod, $itemsToProcess, $isInstallment, $downPayment, $amountReceived, $dueDate) {
+            DB::transaction(function () use ($totalAmount, $paymentMethod, $itemsToProcess, $isInstallment, $downPayment, $amountReceived, $dueDate, $storeId) {
 
                 if ($isInstallment) {
                     $amountPaid = $downPayment;
@@ -103,6 +165,7 @@ class PosController extends Controller
                 $sale = Sale::create([
                     'invoice_no' => 'INV-' . date('Ymd') . '-' . strtoupper(Str::random(5)),
                     'cashier_id' => Auth::id() ?? 1,
+                    'store_id' => $storeId,
                     'sold_at' => now(),
                     'total_amount' => $totalAmount,
                     'amount_paid' => $amountPaid,

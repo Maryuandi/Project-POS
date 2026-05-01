@@ -3,36 +3,24 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\Category;
 use App\Models\Product;
 use Illuminate\Http\Request;
-use Illuminate\Support\Str;
 
 class ProductController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Product::with(['category']);
+        $query = Product::query();
 
-        // Apply Search
         if ($request->filled('search')) {
             $search = $request->search;
             $query->where(function ($q) use ($search) {
                 $q->whereRaw('LOWER(name) LIKE ?', ['%' . strtolower($search) . '%'])
                     ->orWhereRaw('LOWER(code) LIKE ?', ['%' . strtolower($search) . '%'])
-                    ->orWhereRaw('LOWER(distributor) LIKE ?', ['%' . strtolower($search) . '%'])
-                    ->orWhereHas('category', function ($qc) use ($search) {
-                        $qc->whereRaw('LOWER(name) LIKE ?', ['%' . strtolower($search) . '%']);
-                    });
+                    ->orWhereRaw('LOWER(distributor) LIKE ?', ['%' . strtolower($search) . '%']);
             });
         }
 
-        // Apply Category Filter
-        if ($request->filled('category')) {
-            $query->where('category_id', $request->category);
-        }
-
-        // Apply Status Filter
         if ($request->filled('status') && $request->status !== 'all') {
             if ($request->status === 'active') {
                 $query->where('is_active', true);
@@ -42,15 +30,13 @@ class ProductController extends Controller
         }
 
         $products = $query->latest()->paginate(10)->withQueryString();
-        $categoriesList = Category::orderBy('name')->get();
 
-        return view('admin.products.index', compact('products', 'categoriesList'));
+        return view('admin.products.index', compact('products'));
     }
 
     public function create()
     {
-        $categoriesList = Category::orderBy('name')->get();
-        return view('admin.products.create', compact('categoriesList'));
+        return view('admin.products.create');
     }
 
     public function store(Request $request)
@@ -58,25 +44,15 @@ class ProductController extends Controller
         $rules = [
             'name' => 'required|string|max:255',
             'code' => 'required|string|max:255|unique:products,code',
-            'category_id' => 'required|exists:categories,id',
             'distributor' => 'nullable|string',
             'stock' => 'required|integer|min:0',
             'cost' => 'required|numeric|min:0',
-            'price' => 'required|numeric|min:0',
             'is_active' => 'boolean',
-            'image' => 'nullable|image|max:10240',
-            'image_path' => 'nullable|string',
             'notes' => 'nullable|string|max:1000',
         ];
 
         $validatedData = $request->validate($rules);
-        $validatedData['is_active'] = $request->has('is_active');
-
-        if ($request->hasFile('image')) {
-            $validatedData['image_path'] = $request->file('image')->store('products', 'public');
-        }
-
-        unset($validatedData['image']);
+        $validatedData['is_active'] = $request->boolean('is_active');
 
         $product = Product::create($validatedData);
 
@@ -97,8 +73,7 @@ class ProductController extends Controller
 
     public function edit(Product $product)
     {
-        $categoriesList = Category::orderBy('name')->get();
-        return view('admin.products.edit', compact('product', 'categoriesList'));
+        return view('admin.products.edit', compact('product'));
     }
 
     public function update(Request $request, Product $product)
@@ -106,25 +81,15 @@ class ProductController extends Controller
         $rules = [
             'name' => 'required|string|max:255',
             'code' => 'required|string|max:255|unique:products,code,' . $product->id,
-            'category_id' => 'required|exists:categories,id',
             'distributor' => 'nullable|string',
             'stock' => 'required|integer|min:0',
             'cost' => 'required|numeric|min:0',
-            'price' => 'required|numeric|min:0',
             'is_active' => 'boolean',
-            'image' => 'nullable|image|max:10240',
-            'image_path' => 'nullable|string',
             'notes' => 'nullable|string|max:1000',
         ];
 
         $validatedData = $request->validate($rules);
-        $validatedData['is_active'] = $request->has('is_active');
-
-        if ($request->hasFile('image')) {
-            $validatedData['image_path'] = $request->file('image')->store('products', 'public');
-        }
-
-        unset($validatedData['image']);
+        $validatedData['is_active'] = $request->boolean('is_active');
 
         $oldStock = $product->stock;
         $product->update($validatedData);
@@ -149,6 +114,7 @@ class ProductController extends Controller
     public function destroy(Product $product)
     {
         $product->delete();
+
         return redirect()->back()->with('message', 'Product deleted successfully.');
     }
 }

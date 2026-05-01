@@ -3,9 +3,9 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Product extends Model
@@ -13,10 +13,9 @@ class Product extends Model
     use HasFactory, SoftDeletes;
 
     protected $fillable = [
+        'store_id',
         'name',
         'code',
-        'category_id',
-        'image_path',
         'stock',
         'cost',
         'price',
@@ -25,10 +24,18 @@ class Product extends Model
     ];
 
     /**
-     * Get the category that owns the product.
+     * Get the store that owns the product.
      */
-    public function category(): BelongsTo
+    public function store(): BelongsTo
     {
-        return $this->belongsTo(Category::class);
+        return $this->belongsTo(Store::class);
+    }
+
+    /**
+     * Scope a query to order products alphabetically by name.
+     */
+    public function scopeAlphabetical(Builder $query): Builder
+    {
+        return $query->orderByRaw('LOWER(name) ASC');
     }
 }

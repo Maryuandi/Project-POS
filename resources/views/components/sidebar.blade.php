@@ -157,7 +157,7 @@
 
                         <!-- Products Group -->
                         <li
-                            x-data="{ open: {{ (request()->is('admin/products*') || request()->is('admin/categories*')) ? 'true' : 'false' }} }">
+                            x-data="{ open: {{ (request()->is('admin/products*') || request()->is('admin/stores*')) ? 'true' : 'false' }} }">
                             <button @click="open = !open"
                                 class="flex w-full items-center justify-between gap-x-2.5 rounded-md p-2 text-base text-gray-900 transition hover:bg-gray-200/50 sm:text-sm dark:text-gray-400 hover:dark:bg-gray-900 hover:dark:text-gray-50 outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500">
                                 <div class="flex items-center gap-2.5">
@@ -198,15 +198,15 @@
                                     </a>
                                 </li>
                                 <li>
-                                    <a data-active="{{ request()->is('admin/categories*') ? 'true' : 'false' }}"
+                                    <a data-active="{{ request()->is('admin/stores*') ? 'true' : 'false' }}"
                                         wire:navigate
                                         class="relative flex gap-2 rounded-md py-1.5 pl-9 pr-3 text-base transition sm:text-sm text-gray-700 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-50 data-[active=true]:rounded data-[active=true]:bg-white data-[active=true]:text-blue-600 data-[active=true]:shadow data-[active=true]:ring-1 data-[active=true]:ring-gray-200 data-[active=true]:dark:bg-gray-900 data-[active=true]:dark:text-blue-500 data-[active=true]:dark:ring-gray-800 outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500"
-                                        href="{{ route('admin.categories.index') }}">
-                                        @if(request()->is('admin/categories*'))
+                                        href="{{ route('admin.stores.index') }}">
+                                        @if(request()->is('admin/stores*'))
                                             <div class="absolute left-4 top-1/2 h-5 w-px -translate-y-1/2 bg-blue-500 dark:bg-blue-500"
                                                 aria-hidden="true"></div>
                                         @endif
-                                        Categories
+                                        Store
                                     </a>
                                 </li>
                                 <li>

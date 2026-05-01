@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -14,6 +15,7 @@ class Sale extends Model
     protected $fillable = [
         'invoice_no',
         'cashier_id',
+        'store_id',
         'sold_at',
         'total_amount',
         'amount_paid',
@@ -46,6 +48,14 @@ class Sale extends Model
     }
 
     /**
+     * Get the store where the sale was created.
+     */
+    public function store(): BelongsTo
+    {
+        return $this->belongsTo(Store::class);
+    }
+
+    /**
      * Get the items for the sale.
      */
     public function saleItems(): HasMany
@@ -59,6 +69,22 @@ class Sale extends Model
     public function installmentPayments(): HasMany
     {
         return $this->hasMany(InstallmentPayment::class);
+    }
+
+    /**
+     * Base query for sales history views and reports.
+     */
+    public function scopeHistoryBase(Builder $query): Builder
+    {
+        return $query->with(['cashier', 'store', 'saleItems.product']);
+    }
+
+    /**
+     * Order sales by latest sold date.
+     */
+    public function scopeLatestSold(Builder $query): Builder
+    {
+        return $query->orderByDesc('sold_at');
     }
 
     /**

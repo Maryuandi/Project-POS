@@ -99,19 +99,19 @@
                         <div class="w-5 border-b-2 border-gray-200" title="Master Data"></div>
                     </div>
                     <div class="space-y-1">
-                        <a href="/admin/categories"
+                        <a href="/admin/stores"
                             class="group flex items-center py-1.5 text-[14px] font-medium transition-all duration-200 border 
-                                  {{ request()->is('admin/categories*') ? 'bg-white text-blue-700 border-gray-200 shadow-sm rounded-lg' : 'text-gray-600 hover:bg-gray-100  rounded-lg border-transparent' }}"
+                                  {{ request()->is('admin/stores*') ? 'bg-white text-blue-700 border-gray-200 shadow-sm rounded-lg' : 'text-gray-600 hover:bg-gray-100  rounded-lg border-transparent' }}"
                             :class="sidebarExpanded ? 'px-2.5 justify-start' : 'px-0 justify-center'"
-                            title="Categories">
-                            <svg class="w-[18px] h-[18px] shrink-0 {{ request()->is('admin/categories*') ? 'text-blue-600' : 'text-gray-400 group-hover:text-gray-400' }}"
+                            title="Store">
+                            <svg class="w-[18px] h-[18px] shrink-0 {{ request()->is('admin/stores*') ? 'text-blue-600' : 'text-gray-400 group-hover:text-gray-400' }}"
                                 :class="sidebarExpanded ? 'mr-3' : 'mr-0'" fill="none" stroke="currentColor"
                                 viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z">
                                 </path>
                             </svg>
-                            <span x-show="sidebarExpanded" class="truncate">Categories</span>
+                            <span x-show="sidebarExpanded" class="truncate">Store</span>
                         </a>
 
                         <a href="/admin/products"

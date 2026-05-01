@@ -3,12 +3,10 @@
 namespace App\Livewire\Admin;
 
 use App\Models\Product;
-use App\Models\Category;
-use Livewire\Component;
-use Livewire\WithPagination;
-use Illuminate\Support\Facades\Storage;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Url;
+use Livewire\Component;
+use Livewire\WithPagination;
 
 class ProductIndex extends Component
 {
@@ -18,20 +16,12 @@ class ProductIndex extends Component
     public $search = '';
 
     #[Url]
-    public $filterCategory = '';
-
-    #[Url]
     public $filterStatus = 'all';
 
     public $confirmingProductDeletion = false;
     public $productToDelete = null;
 
     public function updatingSearch()
-    {
-        $this->resetPage();
-    }
-    
-    public function updatingFilterCategory()
     {
         $this->resetPage();
     }
@@ -52,9 +42,6 @@ class ProductIndex extends Component
         if ($this->productToDelete) {
             $product = Product::find($this->productToDelete->id);
             if ($product) {
-                if ($product->image_path && !str_starts_with($product->image_path, 'http')) {
-                    Storage::disk('public')->delete($product->image_path);
-                }
                 $product->delete();
                 session()->flash('message', 'Produk berhasil dihapus.');
             }
@@ -72,15 +59,12 @@ class ProductIndex extends Component
     #[Layout('layouts.admin')]
     public function render()
     {
-        $products = Product::with('category')
+        $products = Product::query()
             ->when($this->search, function ($query) {
-                $query->where(function($q) {
+                $query->where(function ($q) {
                     $q->where('name', 'like', '%' . $this->search . '%')
-                      ->orWhere('code', 'like', '%' . $this->search . '%');
+                        ->orWhere('code', 'like', '%' . $this->search . '%');
                 });
-            })
-            ->when($this->filterCategory, function ($query) {
-                $query->where('category_id', $this->filterCategory);
             })
             ->when($this->filterStatus === 'available', function ($query) {
                 $query->where('stock', '>', 10);
@@ -91,13 +75,22 @@ class ProductIndex extends Component
             ->when($this->filterStatus === 'out_of_stock', function ($query) {
                 $query->where('stock', 0);
             })
-            ->latest()
+            ->alphabetical()
             ->paginate(20);
+
+        $productGroups = $products->getCollection()
+            ->groupBy(function ($product) {
+                $name = ltrim((string) $product->name);
+                $firstChar = $name !== '' ? strtoupper(substr($name, 0, 1)) : '#';
+
+                return preg_match('/[A-Z]/', $firstChar) ? $firstChar : '#';
+            })
+            ->sortKeys();
 
         return view('livewire.admin.product-index', [
             'products' => $products,
-            'categoriesList' => Category::orderBy('name')->get(),
-            'unpaidInstallments' => \App\Models\Sale::with('cashier')->where('status', 'installment')->orderByDesc('created_at')->get()
+            'productGroups' => $productGroups,
+            'unpaidInstallments' => \App\Models\Sale::with('cashier')->where('status', 'installment')->orderByDesc('created_at')->get(),
         ]);
     }
 }

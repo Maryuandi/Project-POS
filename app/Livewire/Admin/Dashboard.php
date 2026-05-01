@@ -4,6 +4,7 @@ namespace App\Livewire\Admin;
 
 use Livewire\Component;
 use Livewire\Attributes\Layout;
+use Livewire\WithPagination;
 use App\Models\Sale;
 use App\Models\SaleItem;
 use App\Models\Product;
@@ -11,6 +12,8 @@ use Illuminate\Support\Facades\DB;
 
 class Dashboard extends Component
 {
+    use WithPagination;
+
     #[Layout('layouts.admin')]
     public function render()
     {
@@ -41,13 +44,7 @@ class Dashboard extends Component
             ->groupBy('product_id')
             ->orderByDesc('total_sold')
             ->limit(5)
-            ->with('product:id,name,code,image_path')
-            ->get();
-
-        // Recent transactions
-        $recentSales = Sale::with('cashier:id,name')
-            ->orderByDesc('sold_at')
-            ->limit(5)
+            ->with('product:id,name,code')
             ->get();
 
         // Installment summary
@@ -62,7 +59,29 @@ class Dashboard extends Component
             ->get();
 
         // Total products sold (today)
-        $totalProductsSold = SaleItem::whereHas('sale', fn($q) => $q->where('sold_at', '>=', $today))->sum('qty');
+        $todayProductsSold = SaleItem::whereHas('sale', fn($q) => $q->where('sold_at', '>=', $today))->sum('qty');
+
+        // Sales history metrics and table data (same structure as Sales History tab)
+        $salesMetricsQuery = Sale::query();
+        $totalRevenue = (clone $salesMetricsQuery)->sum('amount_paid');
+        $totalTransactions = (clone $salesMetricsQuery)->count();
+        $totalProductsSold = SaleItem::whereIn('sale_id', (clone $salesMetricsQuery)->select('id'))->sum('qty');
+        $totalProfit = (float) SaleItem::query()
+            ->leftJoin('products', 'products.id', '=', 'sale_items.product_id')
+            ->selectRaw('COALESCE(SUM((sale_items.unit_price - COALESCE(products.cost, 0)) * sale_items.qty), 0) as total_profit')
+            ->value('total_profit');
+
+        $sales = Sale::historyBase()
+            ->latestSold()
+            ->paginate(10, ['*'], 'salesPage');
+
+        $sales->getCollection()->transform(function ($sale) {
+            $sale->profit_amount = $sale->saleItems->sum(function ($item) {
+                return ((float) $item->unit_price - (float) ($item->product->cost ?? 0)) * $item->qty;
+            });
+
+            return $sale;
+        });
 
         // Chart data: Daily (last 7 days)
         $dailyChart = collect(range(6, 0))->map(function ($daysAgo) {
@@ -97,10 +116,11 @@ class Dashboard extends Component
             'todayRevenue', 'todayOrders', 'todayAvg',
             'revenueChange', 'ordersChange',
             'lowStockCount', 'outOfStockCount',
-            'topProducts', 'recentSales',
+            'topProducts',
             'pendingInstallments', 'totalAmountDue',
-            'upcomingDueInstallments', 'totalProductsSold',
-            'dailyChart', 'monthlyChart', 'yearlyChart'
+            'upcomingDueInstallments', 'todayProductsSold',
+            'dailyChart', 'monthlyChart', 'yearlyChart',
+            'totalRevenue', 'totalProfit', 'totalTransactions', 'totalProductsSold', 'sales'
         ));
     }
 }

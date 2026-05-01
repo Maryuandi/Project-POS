@@ -15,7 +15,7 @@ class SalesDetail extends Component
 
     public function mount($id)
     {
-        $this->sale = Sale::with(['cashier', 'saleItems.product', 'installmentPayments'])->findOrFail($id);
+        $this->sale = Sale::with(['cashier', 'store', 'saleItems.product', 'installmentPayments'])->findOrFail($id);
     }
 
     public function openPayModal()
@@ -49,7 +49,7 @@ class SalesDetail extends Component
             'status' => $newAmountDue <= 0 ? 'completed' : 'installment',
         ]);
 
-        $this->sale = Sale::with(['cashier', 'saleItems.product', 'installmentPayments'])->findOrFail($this->sale->id);
+        $this->sale = Sale::with(['cashier', 'store', 'saleItems.product', 'installmentPayments'])->findOrFail($this->sale->id);
         $this->showPayModal = false;
         $this->installAmount = 0;
     }
